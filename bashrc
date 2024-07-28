@@ -43,7 +43,7 @@ theme() {
         esac
 
         # Tweak `ls` colors to make everything readable.
-        eval $(dircolors | sed 's/00;90/00;92/g')
+        eval "$(dircolors | sed 's/00;90/00;92/g')"
         ;;
     'gruvbox')
         # https://github.com/morhetz
