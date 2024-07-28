@@ -204,4 +204,7 @@ fi
 # Disable Ctrl-S pausing input.
 stty -ixon
 
+set -o vi
+bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
+
 #theme solarized
