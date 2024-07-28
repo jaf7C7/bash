@@ -181,6 +181,7 @@ CDPATH=.:~:~/Projects:~/Courses
 HISTFILESIZE=999999999
 
 export EDITOR='vi'
+export LESSOPEN='||/usr/bin/lesspipe.sh %s'
 export INPUTRC=~/.config/readline/inputrc
 export MICRO_TRUECOLOR=1
 export NPM_CONFIG_PREFIX=~/.local
