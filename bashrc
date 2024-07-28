@@ -190,6 +190,9 @@ if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+shopt -s globstar  # Allow '**'
+shopt -s failglob  # Command fails if glob does not match
+
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
