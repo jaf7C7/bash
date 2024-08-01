@@ -210,7 +210,10 @@ __git_ps1() {
 PS1='\$ '
 PROMPT_COMMAND='printf "\e]0;%s\a" "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"'
 CDPATH=.:~:~/Projects:~/Courses
-HISTFILESIZE=999999999
+HISTFILESIZE=1000000
+HISTSIZE=10000
+HISTIGNORE='[fb]g*:%*'
+HISTCONTROL=ignoreboth
 
 export EDITOR='vi'
 export LESSOPEN='||/usr/bin/lesspipe.sh %s'
@@ -222,6 +225,7 @@ if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+shopt -s histappend	 # Append to history file, don't overwrite
 shopt -s globstar  # Allow '**'
 shopt -s failglob  # Command fails if glob does not match
 
