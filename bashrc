@@ -5,33 +5,33 @@
 
 theme() {
 	case "$1" in
-	'vga'|'')
-		# 'Linux console' palette from gnome-terminal.
+	'xterm'|'')
+		# 'XTerm' palette from gnome-terminal.
 		local color0='#000000'
-		local color1='#AA0000'
-		local color2='#00AA00'
-		local color3='#AA5500'
-		local color4='#0000AA'
-		local color5='#AA00AA'
-		local color6='#00AAAA'
-		local color7='#AAAAAA'
-		local color8='#555555'
-		local color9='#FF5555'
-		local color10='#55FF55'
-		local color11='#FFFF55'
-		local color12='#5555FF'
-		local color13='#FF55FF'
-		local color14='#55FFFF'
+		local color1='#CD0000'
+		local color2='#00CD00'
+		local color3='#CDCD00'
+		local color4='#0000EE'
+		local color5='#CD00CD'
+		local color6='#00CDCD'
+		local color7='#E5E5E5'
+		local color8='#7F7F7F'
+		local color9='#FF0000'
+		local color10='#00FF00'
+		local color11='#FFFF00'
+		local color12='#5C5CFF'
+		local color13='#FF00FF'
+		local color14='#00FFFF'
 		local color15='#FFFFFF'
 
 		case "$2" in
 		'light'|'')
-			export TERMINAL_THEME='vga-light'
+			export TERMINAL_THEME='xterm-light'
 			local fg="$color0"
 			local bg="$color15"
 			;;
 		'dark')
-			export TERMINAL_THEME='vga-dark'
+			export TERMINAL_THEME='xterm-dark'
 			local fg="$color7"
 			local bg="$color0"
 			;;
