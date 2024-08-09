@@ -124,7 +124,8 @@ bconv() {
 
 __git_ps1() {
 	command -v git &>/dev/null || return
-	if git status -s &>/dev/null; then
+	if git status -s &>/dev/null
+	then
 		local branch=$(git branch --show-current)
 		printf ' (%s)' "${branch:-'???'}"
 	fi
@@ -144,11 +145,12 @@ export INPUTRC=~/.config/readline/inputrc
 export MICRO_TRUECOLOR=1
 export NPM_CONFIG_PREFIX=~/.local
 
-if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]; then
+if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]
+then
 	PATH="$HOME/.local/bin:$PATH"
 fi
 
-shopt -s histappend	 # Append to history file, don't overwrite
+shopt -s histappend  # Append to history file, don't overwrite
 shopt -s globstar  # Allow '**'
 shopt -s failglob  # Command fails if glob does not match
 
@@ -158,7 +160,8 @@ alias diff='diff --color'
 alias open='xdg-open'
 alias args='for _; do printf '%4d %s\n' $((++i)) "$_"; done; unset i'
 
-if [[ $OS == 'Windows_NT' ]]; then
+if [[ $OS == 'Windows_NT' ]]
+then
 	alias python='winpty python'
 	alias node='winpty node'
 	alias gh='winpty gh'
