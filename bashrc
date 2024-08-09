@@ -156,6 +156,7 @@ alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
 alias open='xdg-open'
+alias args='for _; do printf '%4d %s\n' $((++i)) "$_"; done; unset i'
 
 if [[ $OS == 'Windows_NT' ]]; then
 	alias python='winpty python'
