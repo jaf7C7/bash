@@ -1,6 +1,11 @@
 # Do nothing if not interactive.
 [[ $- == *i* ]] || return
 
+if [[ $TERM_PROGRAM == vscode && -x /opt/microsoft/powershell/7/pwsh ]]
+then
+	exec /opt/microsoft/powershell/7/pwsh
+fi
+
 [[ -f /etc/bashrc ]] && . /etc/bashrc
 
 theme() {
