@@ -154,6 +154,7 @@ shopt -s histappend  # Append to history file, don't overwrite
 shopt -s globstar  # Allow '**'
 shopt -s failglob  # Command fails if glob does not match
 
+alias vi=/usr/libexec/vi  # Fedora Linux only: 'vi' -> 'vim-minimal'
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
