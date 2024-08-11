@@ -58,5 +58,3 @@ stty -ixon
 
 set -o vi
 bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
-
-cd "$HOME"
