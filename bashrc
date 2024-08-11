@@ -20,7 +20,7 @@ HISTIGNORE='[fb]g*:%*'
 HISTCONTROL=ignoreboth
 
 export EDITOR='vi'
-export EXINIT='set nocp tm=10 ul=0 bs="" sw=0 nosmd noru hl=8r,~i,@b,dn,eb,mb,Mb,nb,rb,sr,Ss,tn,cr,vr,wb,Wn,+r,=n | map! <c-h> <c-w>'
+export EXINIT='set nocp tm=10 ul=0 bs="" ai sw=0 tw=79 hidden cpo+=n nosmd noru hl=8r,~i,@b,dn,eb,mb,Mb,nb,rb,sr,Ss,tn,cr,vr,wb,Wn,+r,=n | map! <c-h> <c-w>'
 export LESSOPEN='||/usr/bin/lesspipe.sh %s'
 export INPUTRC=~/.config/readline/inputrc
 export MICRO_TRUECOLOR=1
