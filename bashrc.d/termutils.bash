@@ -1,6 +1,54 @@
+#
+# termutils.bash
+#
+# Control terminal properties with escape sequences.
+# https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+#
+
+__set_color() {
+	# Usage: __set_color <0-15> {<#aabbcc>|<rgb:/aa/bb/cc>} [<0-15> {<#aabbcc>|<rgb:/aa/bb/cc>}]...
+	printf '\033]4;%d;%s\007' "$@"
+}
+
+__set_fg() {
+	# Usage: __set_fg() {<#aabbcc>|<rgb:/aa/bb/cc>}
+	printf '\033]10;%s\007' "$1"
+}
+
+__set_bg() {
+	# Usage: __set_bg() {<#aabbcc>|<rgb:/aa/bb/cc>}
+	printf '\033]11;%s\007'
+}
+
+__set_bold_fg() {
+	# Usage: __set_bold_fg() {<#aabbcc>|<rgb:/aa/bb/cc>}
+	printf '\033]5;0;%s\007' "$1"
+}
+
+__set_selection_fg() {
+	# Usage: __set_selection_fg() {<#aabbcc>|<rgb:/aa/bb/cc>}
+	printf '\033]17;%s\007' "$1"
+}
+
+__set_selection_bg() {
+	# Usage: __set_selection_bg() {<#aabbcc>|<rgb:/aa/bb/cc>}
+	printf '\033]19;%s\007'
+}
+
+__set_cursor_type() {
+	# Usage: __set_cursor_type <number>
+	# Cursor types:
+	# 1 -> Blinking block
+	#
+	# TODO: Document this properly
+	#
+	printf '\033[%d q' "$1"
+}
+
 theme() {
-	case "$1" in
-	'clean'|'')
+	# Usage: theme [{default|solarized} [{dark|light}]]
+	case $1 in
+	default|'')
 		local color0='#262626'
 		local color1='#af0000'
 		local color2='#008700'
@@ -18,22 +66,23 @@ theme() {
 		local color14='#00afaf'
 		local color15='#ffffff'
 
-		case "$2" in
-		'light'|'')
-			export TERMINAL_THEME='clean-light'
-			local fg="$color8"
-			local bg="$color15"
+		case $2 in
+		light|'')
+			export TERMINAL_THEME=default-light
+			local fg=$color8
+			local bg=$color15
 			;;
-		'dark')
-			export TERMINAL_THEME='clean-dark'
-			local fg="$color7"
-			local bg="$color8"
+		dark)
+			export TERMINAL_THEME=default-dark
+			local fg=$color7
+			local bg=$color8
 			;;
 		esac
 
+		# Make sure all directory listings are readable.
 		eval "$(dircolors | sed 's/00;90/00;33/g')"
 		;;
-	'solarized')
+	solarized)
 		# https://github.com/altercation/solarized
 		local color0='#073642'
 		local color1='#DC322F'
@@ -52,25 +101,24 @@ theme() {
 		local color14='#93A1A1'
 		local color15='#FDF6E3'
 
-		case "$2" in
-		'dark'|'')
-			export TERMINAL_THEME='solarized-dark'
-			local fg="$color12"
-			local bg="$color8"
-			local bold="$color14"
+		case $2 in
+		dark|'')
+			export TERMINAL_THEME=solarized-dark
+			local fg=$color12
+			local bg=$color8
+			local bold=$color14
 			;;
-		'light')
-			export TERMINAL_THEME='solarized-light'
-			local fg="$color11"
-			local bg="$color15"
-			local bold="$color10"
+		light)
+			export TERMINAL_THEME=solarized-light
+			local fg=$color11
+			local bg=$color15
+			local bold=$color10
 			;;
 		*)
 			echo "Unknown theme: '$*'" >&2
 			return 1
 		esac
 
-		# Tweak `ls` colors to make everything readable.
 		eval "$(dircolors | sed 's/00;90/00;92/g')"
 		;;
 	*)
@@ -78,11 +126,8 @@ theme() {
 		return 1
 	esac
 
-	# Control seqs. from:
-	# https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-
 	# Define 16-color palette.
-	printf '\033]4;%d;%s\007' \
+	__set_color \
 		0 "$color0" \
 		1 "$color1" \
 		2 "$color2" \
@@ -99,25 +144,24 @@ theme() {
 		13 "$color13" \
 		14 "$color14" \
 		15 "$color15"
-
-	printf '\033]10;%s\007' "$fg"  # Text fg
-	printf '\033]11;%s\007' "$bg"  # Text bg
-	printf '\033]5;0;%s\007' "${bold:-"$fg"}" # Bold color
-	printf '\033]17;%s\007' "$fg"  # Selection fg
-	printf '\033]19;%s\007' "$bg"  # Selection bg
-	printf '\033[%d q' 1		   # Cursor type (1=blinking block)
-}
-
-setc() {
-	printf '\033]4;%d;%s\007' "$1" "$2"
+	__set_fg  "$fg"
+	__set_bg "$bg"
+	__set_bold_fg "${bold:-"$fg"}"
+	__set_selection_fg "$fg"
+	__set_selection_bg "$bg"
+	__set_cursor_type 1
 }
 
 colortest() {
+	# Usage: colortest
+	#
+	# TODO: Refactor this into helper functions
+	#
 	local bgv
 	local i=0
 	for bgv in 4 10
 	do
-		if test $((bgv)) -eq 4
+		if [[ $((bgv)) -eq 4 ]]
 		then
 			printf ' \033[7m  %s   \033[m' fg
 		else
@@ -127,7 +171,7 @@ colortest() {
 		for bg in 0 1 2 3 4 5 6 7
 		do
 			printf ' \033[%d;%d%dm  %2d   \033[m' \
-				$(($bg == 7 || $bg == 15 ? 0 : 97)) \
+				$((bg == 7 || bg == 15 ? 0 : 97)) \
 				"$bgv" "$bg" "$i"
 			i=$((i + 1))
 		done
@@ -149,13 +193,13 @@ colortest() {
 		local wgt
 		for wgt in 0 1
 		do
-			local cap="${wgt};${fg}m"
-			if test "$cap" = '0;0m'
+			local cap=${wgt};${fg}m
+			if [[ $cap == '0;0m' ]]
 			then
-				cap='m'
-			elif test "$cap" = '1;0m'
+				cap=m
+			elif [[ $cap == '1;0m' ]]
 			then
-				cap='1m'
+				cap=1m
 			fi
 			# Stop 'fg' overriding 'wgt' for 'm' and '1m' lines.
 			fg=$((wgt == 1  && fg == 0 ? 1 : fg))

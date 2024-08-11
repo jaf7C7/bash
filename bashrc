@@ -3,7 +3,13 @@
 
 [[ -f /etc/bashrc ]] && . /etc/bashrc
 
-[[ -d ~/.config/bash/bashrc.d ]] && . ~/.config/bash/bashrc.d/*.{ba,}sh
+if [[ -d ~/.config/bash/bashrc.d ]]
+then
+	for _ in ~/.config/bash/bashrc.d/*.bash
+	do
+		. "$_"
+	done
+fi
 
 PS1='\$ '
 PROMPT_COMMAND='printf "\e]0;%s\a" "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"'
