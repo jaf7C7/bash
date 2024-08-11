@@ -146,6 +146,7 @@ HISTIGNORE='[fb]g*:%*'
 HISTCONTROL=ignoreboth
 
 export EDITOR='vi'
+export EXINIT='set cp hl=8r,~i,@b,dn,eb,mb,Mb,nb,rb,sr,Ss,tn,cr,vr,wb,Wn,+r,=n | map!  '
 export LESSOPEN='||/usr/bin/lesspipe.sh %s'
 export INPUTRC=~/.config/readline/inputrc
 export MICRO_TRUECOLOR=1
@@ -160,13 +161,16 @@ shopt -s histappend  # Append to history file, don't overwrite
 shopt -s globstar  # Allow '**'
 shopt -s failglob  # Command fails if glob does not match
 
-alias vi=/usr/libexec/vi  # Fedora Linux only: 'vi' -> 'vim-minimal'
+if [[ -x /usr/libexec/vi ]]
+then
+	# Fedora Linux only: 'vi' -> 'vim-minimal'
+	alias vi=/usr/libexec/vi
+fi
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
 alias open='xdg-open'
 alias args='for _; do printf "%4d %s\\n" $((++i)) "$_"; done; unset i'
-
 if [[ $OS == 'Windows_NT' ]]
 then
 	alias python='winpty python'
