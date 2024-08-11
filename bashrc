@@ -113,6 +113,69 @@ theme() {
 	printf '\033[%d q' 1		   # Cursor type (1=blinking block)
 }
 
+setc() {
+	printf '\033]4;%d;%s\007' "$1" "$2"
+}
+
+colortest() {
+	local bgv
+	local i=0
+	for bgv in 4 10
+	do
+		if test $((bgv)) -eq 4
+		then
+			printf ' \033[7m  %s   \033[m' fg
+		else
+			printf '   %s   '  bg
+		fi
+		local bg
+		for bg in 0 1 2 3 4 5 6 7
+		do
+			printf ' \033[%d;%d%dm  %2d   \033[m' \
+				$(($bg == 7 || $bg == 15 ? 0 : 97)) \
+				"$bgv" "$bg" "$i"
+			i=$((i + 1))
+		done
+		printf '\n'
+	done
+	printf '\n'
+
+	local cap
+	for cap in '' '' 40m 41m 42m 43m 44m 45m 46m 47m
+	do
+		printf '  %3s   ' "$cap"
+	done
+	printf '\n'
+
+	local str='  gYw  '
+	local fg
+	for fg in 0 30 31 32 33 34 35 36 37
+	do
+		local wgt
+		for wgt in 0 1
+		do
+			local cap="${wgt};${fg}m"
+			if test "$cap" = '0;0m'
+			then
+				cap='m'
+			elif test "$cap" = '1;0m'
+			then
+				cap='1m'
+			fi
+			# Stop 'fg' overriding 'wgt' for 'm' and '1m' lines.
+			fg=$((wgt == 1  && fg == 0 ? 1 : fg))
+			printf ' %5s ' "$cap"
+			printf ' \033[%d;%dm%s\033[m' "$wgt" "$fg" "$str"
+			for bg in 0 1 2 3 4 5 6 7
+			do
+				printf ' \033[%d;%d;4%dm%s\033[m' \
+					"$wgt" "$fg" "$bg" "$str"
+			done
+			printf '\n'
+		done
+	done
+}
+
 resize() {
 	# Usage: resize <cols> <rows> (default 80x43).
 	printf '\033[8;%d;%dt' "${2:-43}" "${1:-80}"
