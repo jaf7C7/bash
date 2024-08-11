@@ -10,37 +10,38 @@ fi
 
 theme() {
 	case "$1" in
-	'xterm'|'')
-		# 'XTerm' palette from gnome-terminal.
-		local color0='#000000'
-		local color1='#CD0000'
-		local color2='#00CD00'
-		local color3='#CDCD00'
-		local color4='#0000EE'
-		local color5='#CD00CD'
-		local color6='#00CDCD'
-		local color7='#E5E5E5'
-		local color8='#7F7F7F'
-		local color9='#FF0000'
-		local color10='#00FF00'
-		local color11='#FFFF00'
-		local color12='#5C5CFF'
-		local color13='#FF00FF'
-		local color14='#00FFFF'
-		local color15='#FFFFFF'
+	'jfox'|'')
+		local color0='#262626'
+		local color1='#af0000'
+		local color2='#008700'
+		local color3='#af8700'
+		local color4='#0000ff'
+		local color5='#8700ff'
+		local color6='#008080'
+		local color7='#c0c0c0'
+		local color8='#000000'
+		local color9='#d70000'
+		local color10='#5fd700'
+		local color11='#d7d700'
+		local color12='#005fff'
+		local color13='#d700ff'
+		local color14='#00d7ff'
+		local color15='#ffffff'
 
 		case "$2" in
 		'light'|'')
-			export TERMINAL_THEME='xterm-light'
-			local fg="$color0"
+			export TERMINAL_THEME='jfox-light'
+			local fg="$color8"
 			local bg="$color15"
 			;;
 		'dark')
-			export TERMINAL_THEME='xterm-dark'
+			export TERMINAL_THEME='jfox-dark'
 			local fg="$color7"
-			local bg="$color0"
+			local bg="$color8"
 			;;
 		esac
+
+		eval "$(dircolors | sed 's/00;90/00;33/g')"
 		;;
 	'solarized')
 		# https://github.com/altercation/solarized
