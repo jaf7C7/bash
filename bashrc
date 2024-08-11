@@ -5,7 +5,7 @@
 
 theme() {
 	case "$1" in
-	'jfox'|'')
+	'clean'|'')
 		local color0='#262626'
 		local color1='#af0000'
 		local color2='#008700'
@@ -18,19 +18,19 @@ theme() {
 		local color9='#d70000'
 		local color10='#5fd700'
 		local color11='#d7d700'
-		local color12='#005fff'
+		local color12='#0087ff'
 		local color13='#d700ff'
-		local color14='#00d7ff'
+		local color14='#00afaf'
 		local color15='#ffffff'
 
 		case "$2" in
 		'light'|'')
-			export TERMINAL_THEME='jfox-light'
+			export TERMINAL_THEME='clean-light'
 			local fg="$color8"
 			local bg="$color15"
 			;;
 		'dark')
-			export TERMINAL_THEME='jfox-dark'
+			export TERMINAL_THEME='clean-dark'
 			local fg="$color7"
 			local bg="$color8"
 			;;
