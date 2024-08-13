@@ -5,7 +5,7 @@
 
 if [[ -d ~/.config/bash/bashrc.d ]]
 then
-	for _ in ~/.config/bash/bashrc.d/*.bash
+	for _ in ~/.config/bash/bashrc.d/[!_]*.bash
 	do
 		. "$_"
 	done
