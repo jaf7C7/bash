@@ -1,8 +1,6 @@
 bconv() {
-	#
 	# Convert between decimal, hexadecimal, binary, octal etc.
 	# Usage: bconv <input base> <output base> <number>.
-	#
 	if ! command -v bc >/dev/null
 	then
 		echo '`bc(1)` is required to use this function' >&2

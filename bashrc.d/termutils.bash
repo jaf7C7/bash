@@ -1,12 +1,11 @@
-#
 # termutils.bash
 #
 # Control terminal properties with escape sequences.
 # https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-#
 
 __set_color() {
-	# Usage: __set_color <0-15> {<#aabbcc>|<rgb:/aa/bb/cc>} [<0-15> {<#aabbcc>|<rgb:/aa/bb/cc>}]...
+	# Usage: __set_color <0-15> {<#aabbcc>|<rgb:/aa/bb/cc>}
+	#                   [<0-15> {<#aabbcc>|<rgb:/aa/bb/cc>}]...
 	printf '\033]4;%d;%s\007' "$@"
 }
 
