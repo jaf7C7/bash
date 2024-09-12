@@ -35,11 +35,6 @@ shopt -s histappend  # Append to history file, don't overwrite
 shopt -s globstar  # Allow '**'
 shopt -s failglob  # Command fails if glob does not match
 
-if [[ -x /usr/libexec/vi ]]
-then
-	# Fedora Linux only: 'vi' -> 'vim-minimal'
-	alias vi=/usr/libexec/vi
-fi
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
