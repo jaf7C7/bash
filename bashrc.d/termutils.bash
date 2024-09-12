@@ -149,7 +149,7 @@ theme() {
 		13 "$color13" \
 		14 "$color14" \
 		15 "$color15"
-	__set_fg  "$fg"
+	__set_fg "$fg"
 	__set_bg "$bg"
 	__set_bold_fg "${bold:-"$fg"}"
 	__set_selection_fg "$fg"
