@@ -100,6 +100,12 @@ theme() {
 		local color14='#93A1A1'
 		local color15='#FDF6E3'
 
+		# XXX
+		if [[ -r ~/.config/vim/pack/themes/opt/solarized8/scripts/solarized8.sh ]]
+		then
+			. ~/.config/vim/pack/themes/opt/solarized8/scripts/solarized8.sh
+		fi
+
 		case $2 in
 		dark|'')
 			export TERMINAL_THEME=solarized-dark
@@ -160,7 +166,7 @@ colortest() {
 	local i=0
 	for bgv in 4 10
 	do
-		if [[ $((bgv)) -eq 4 ]]
+		if ((bgv == 4))
 		then
 			printf ' \033[7m  %s   \033[m' fg
 		else
@@ -172,7 +178,7 @@ colortest() {
 			printf ' \033[%d;%d%dm  %2d   \033[m' \
 				$((bg == 7 || bg == 15 ? 0 : 97)) \
 				"$bgv" "$bg" "$i"
-			i=$((i + 1))
+			((i++))
 		done
 		printf '\n'
 	done
@@ -192,7 +198,7 @@ colortest() {
 		local wgt
 		for wgt in 0 1
 		do
-			local cap=${wgt};${fg}m
+			local cap="${wgt};${fg}m"
 			if [[ $cap == '0;0m' ]]
 			then
 				cap=m
