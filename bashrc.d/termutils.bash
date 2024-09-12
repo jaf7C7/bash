@@ -16,7 +16,7 @@ __set_fg() {
 
 __set_bg() {
 	# Usage: __set_bg() {<#aabbcc>|<rgb:/aa/bb/cc>}
-	printf '\033]11;%s\007'
+	printf '\033]11;%s\007' "$1"
 }
 
 __set_bold_fg() {
