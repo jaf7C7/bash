@@ -20,7 +20,7 @@ HISTIGNORE='[fb]g*:%*'
 HISTCONTROL=ignoreboth
 
 export EDITOR='vi'
-export EXINIT='set nocp tm=10 ul=0 bs= ai ci sw=0 hidden cpo+=n nosmd noru hl=8r,~i,@b,dn,eb,mb,Mb,nb,rb,sr,Ss,tn,cr,vr,wb,Wn,+r,=n | map!  '
+export EXINIT='set nocp tm=10 ul=0 bs= ai ci sw=0 hidden cpo+=n backup backupdir=~/.config/vim/backups,.,~/ nosmd noru hl=8r,~i,@b,dn,eb,mb,Mb,nb,rb,sr,Ss,tn,cr,vr,wb,Wn,+r,=n | map!  '
 export LESSOPEN='||/usr/bin/lesspipe.sh %s'
 export INPUTRC=~/.config/readline/inputrc
 export MICRO_TRUECOLOR=1
