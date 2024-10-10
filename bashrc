@@ -47,6 +47,10 @@ then
 	alias gh='winpty gh'
 	alias open='explorer'
 fi
+if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null
+then
+	alias code=codium
+fi
 
 # Disable Ctrl-S pausing input.
 stty -ixon
