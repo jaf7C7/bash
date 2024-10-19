@@ -35,6 +35,12 @@ shopt -s histappend  # Append to history file, don't overwrite
 shopt -s globstar  # Allow '**'
 shopt -s failglob  # Command fails if glob does not match
 
+# Disable Ctrl-S pausing input.
+stty -ixon
+
+set -o vi
+bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
+
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
@@ -52,8 +58,15 @@ then
 	alias code=codium
 fi
 
-# Disable Ctrl-S pausing input.
-stty -ixon
 
-set -o vi
-bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
+check_git() {
+	find ~ -type d -name .git -exec sh -c '
+		cd $(dirname $0) || exit
+		if git status -s >/dev/null 2>&1 && ! git diff --quiet >/dev/null 2>&1
+		then
+			printf "\e[1;34m%s\e[m\n" "$PWD"
+			git status -s
+			echo
+		fi
+	' {} \;
+}
