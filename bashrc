@@ -71,3 +71,22 @@ check_git() {
 		fi
 	' {} \;
 }
+
+prettier() {
+	# Usage: prettier --diff <file>...
+	if [[ $1 = '--diff' ]]
+	then
+		shift
+		if [[ $1 == '.' ]]
+		then
+			set -- $(command prettier --list-different .)
+		fi
+		for file
+		do
+			command diff -u --color=always \
+				"$file" <(command prettier "$file")
+		done | less -RF
+	else
+		command prettier "$@"
+	fi
+}
