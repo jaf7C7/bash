@@ -73,10 +73,14 @@ check_git() {
 }
 
 prettier() {
-	# Usage: prettier --diff <file>...
 	if [[ $1 = '--diff' ]]
 	then
 		shift
+		if [[ $# -eq 0 ]]
+		then
+			echo 'Usage: prettier --diff <file>...' >&2
+			return 1
+		fi
 		if [[ -d "$1" ]]
 		then
 			set -- $(command prettier --list-different "$1")
