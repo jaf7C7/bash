@@ -77,9 +77,9 @@ prettier() {
 	if [[ $1 = '--diff' ]]
 	then
 		shift
-		if [[ $1 == '.' ]]
+		if [[ -d "$1" ]]
 		then
-			set -- $(command prettier --list-different .)
+			set -- $(command prettier --list-different "$1")
 		fi
 		for file
 		do
