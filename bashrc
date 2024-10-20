@@ -87,6 +87,11 @@ prettier() {
 		fi
 		for file
 		do
+			if [[ ! -f "$file" ]]
+			then
+				echo "file not found: $file" >&2
+				return 1
+			fi
 			diff --unified "$file" <(command prettier "$file")
 		done | less -RF
 	else
