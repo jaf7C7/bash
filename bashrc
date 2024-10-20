@@ -60,9 +60,10 @@ fi
 
 
 check_git() {
+	# Check status of all git repositories under $HOME.
 	find ~ -type d -name .git -exec sh -c '
 		cd $(dirname $0) || exit
-		if git status -s >/dev/null 2>&1 && ! git diff --quiet >/dev/null 2>&1
+		if { git status -s && ! git diff --quiet; } >/dev/null 2>&1
 		then
 			printf "\e[1;34m%s\e[m\n" "$PWD"
 			git status -s
