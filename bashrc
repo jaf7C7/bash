@@ -87,8 +87,7 @@ prettier() {
 		fi
 		for file
 		do
-			command diff -u --color=always \
-				"$file" <(command prettier "$file")
+			diff --unified "$file" <(command prettier "$file")
 		done | less -RF
 	else
 		command prettier "$@"
