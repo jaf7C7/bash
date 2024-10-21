@@ -44,7 +44,6 @@ bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
-alias open='xdg-open'
 alias args='for _; do printf "%4d %s\\n" $((++i)) "$_"; done; unset i'
 if [[ $OS == 'Windows_NT' ]]
 then
@@ -58,8 +57,7 @@ then
 	alias code=codium
 fi
 
-
-check_git() {
+check-git() {
 	# Check status of all git repositories under $HOME.
 	find ~ -type d -name .git -exec sh -c '
 		cd $(dirname $0) || exit
@@ -70,31 +68,4 @@ check_git() {
 			echo
 		fi
 	' {} \;
-}
-
-prettier() {
-	if [[ $1 = '--diff' ]]
-	then
-		shift
-		if [[ $# -eq 0 ]]
-		then
-			echo 'Usage: prettier --diff <file>...' >&2
-			return 1
-		fi
-		if [[ -d "$1" ]]
-		then
-			set -- $(command prettier --list-different "$1")
-		fi
-		for file
-		do
-			if [[ ! -f "$file" ]]
-			then
-				echo "file not found: $file" >&2
-				return 1
-			fi
-			diff --unified "$file" <(command prettier "$file")
-		done | less -RF
-	else
-		command prettier "$@"
-	fi
 }
