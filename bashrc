@@ -44,6 +44,7 @@ bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
+alias tree='tree -I .git'
 alias args='for _; do printf "%4d %s\\n" $((++i)) "$_"; done; unset i'
 if [[ $OS == 'Windows_NT' ]]
 then
