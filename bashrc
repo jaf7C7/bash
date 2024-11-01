@@ -3,9 +3,10 @@
 
 [[ -f /etc/bashrc ]] && . /etc/bashrc
 
-if [[ -d ~/.config/bash/bashrc.d ]]
+if [[ -d ~/.config/bash/functions ]]
 then
-	for _ in ~/.config/bash/bashrc.d/[!_]*.bash
+	# Files beginning with an underscore (_) are not sourced.
+	for _ in ~/.config/bash/functions/[!_]*.bash
 	do
 		. "$_"
 	done
@@ -59,25 +60,3 @@ if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null
 then
 	alias code=codium
 fi
-
-serve() {
-	if ! test -d "$1"
-	then
-		echo "Not a directory: '$1'" >&2
-		return 1
-	fi
-	gnome-terminal --tab -- browser-sync start --server "$1" --files "$1"
-}
-
-check-git() {
-	# Check status of all git repositories under $HOME.
-	find ~ -type d -name .git -exec sh -c '
-		cd $(dirname $0) || exit
-		if { git status -s && ! git diff --quiet; } >/dev/null 2>&1
-		then
-			printf "\e[1;34m%s\e[m\n" "$PWD"
-			git status -s
-			echo
-		fi
-	' {} \;
-}
