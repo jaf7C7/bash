@@ -5,6 +5,10 @@ gitcheck() {
 	# not reported.
 	#
 	find ~ -type d -name .git -exec sh -c '
+		is_git_controlled() {
+			git status -s >/dev/null 2>&1
+		}
+
 		untracked_files() {
 			git ls-files --other --directory --exclude-standard |
 			grep -q '.'
@@ -22,7 +26,9 @@ gitcheck() {
 
 		cd $(dirname $0) || exit
 
-		if uncommitted_changes || untracked_files
+		if
+			is_git_controlled &&
+			{ uncommitted_changes || untracked_files ; }
 		then
 			print_status
 		fi
