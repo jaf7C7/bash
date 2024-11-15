@@ -1,7 +1,9 @@
 __git_ps1() {
+	# Usage: Add `$(__git_ps1)` to your PS1 or PROMPT_COMMAND string.
+	#
 	# A simplified (and much quicker) version of the prompt which ships
 	# with `git(1)`.
-	# Usage: Add `$(__git_ps1)` to your PS1 or PROMPT_COMMAND string.
+	#
 	if ! git status -s &>/dev/null
 	then
 		return
