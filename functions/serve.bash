@@ -1,9 +1,25 @@
 serve() {
 	# Usage: serve <directory>
-	if ! test -d "$1"
-	then
-		echo "Not a directory: '$1'" >&2
-		return 1
-	fi
-	gnome-terminal --tab -- browser-sync start --server "$1" --files "$1"
+	#
+	# Any long options will be passed to browser-sync
+	#
+	local arg
+	for arg
+	do
+		shift
+		if [[ "$arg" == --* ]]
+		then
+			set -- "$arg"
+			continue
+		fi
+		local dir="$arg"
+		if [[ ! -d "$dir" ]]
+		then
+			echo "not a directory: '$dir'" >&2
+			return 1
+		fi
+		break
+	done
+	gnome-terminal --tab -- \
+		browser-sync start --server "$dir" --files "$dir" "$@"
 }
