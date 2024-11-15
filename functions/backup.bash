@@ -11,7 +11,7 @@ backup() {
 			//192.168.1.1/usb2_sda1 /mnt/network &&
 		rsync --checksum --recursive --compress --verbose \
 			--backup /home/jfox/Data /mnt/network/ &&
-		test "$0" = '--poweroff' &&
+		test "$0" = "--poweroff" &&
 		poweroff
 	' "$@"
 }
