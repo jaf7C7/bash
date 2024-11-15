@@ -47,8 +47,8 @@ alias grep='grep --color'
 alias diff='diff --color'
 alias tree='tree -I .git'
 alias args='for _; do printf "%4d %s\\n" $((++i)) "$_"; done; unset i'
-alias bs='browser-sync'
-alias gt='gnome-terminal'
+alias open='xdg-open'
+alias todo='gnome-terminal --tab -t TODO -- vi ~/TODO.md'
 if [[ $OS == 'Windows_NT' ]]
 then
 	alias python='winpty python'
