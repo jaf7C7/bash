@@ -45,7 +45,7 @@ bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
 alias ls='ls --color'
 alias grep='grep --color'
 alias diff='diff --color'
-alias tree='tree -I .git'
+alias tree='tree --gitignore'
 alias args='for _; do printf "%4d %s\\n" $((++i)) "$_"; done; unset i'
 alias open='xdg-open'
 alias todo='gnome-terminal --tab -t TODO -- vi ~/TODO.md'
@@ -60,3 +60,20 @@ if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null
 then
 	alias code=codium
 fi
+
+
+# https://www.invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
+__set_terminal_colors() {
+	local fg='#000000'
+	local bg='#eeffcc'
+	local hl_bg='#5555ff'
+	local hl_fg='#ffffff'
+
+	printf '\e]10;%s\a' "$fg"
+	printf '\e]11;%s\a' "$bg"
+	printf '\e]17;%s\a' "$hl_bg"
+	printf '\e]19;%s\a' "$hl_fg"
+}
+
+
+__set_terminal_colors
