@@ -60,20 +60,3 @@ if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null
 then
 	alias code=codium
 fi
-
-
-# https://www.invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
-__set_terminal_colors() {
-	local fg='#000000'
-	local bg='#eeffcc'
-	local hl_bg='#5555ff'
-	local hl_fg='#ffffff'
-
-	printf '\e]10;%s\a' "$fg"
-	printf '\e]11;%s\a' "$bg"
-	printf '\e]17;%s\a' "$hl_bg"
-	printf '\e]19;%s\a' "$hl_fg"
-}
-
-
-__set_terminal_colors
