@@ -4,19 +4,19 @@
 #
 # Colors can be hexcodes or color names
 
-__set_terminal_bg {
-	printf '\e]11;%s\a' "$1"
-}
-
-__set_terminal_fg {
+__set_terminal_fg() {
 	printf '\e]10;%s\a' "$1"
 }
 
-__set_terminal_highlight_fg {
+__set_terminal_bg() {
+	printf '\e]11;%s\a' "$1"
+}
+
+__set_terminal_highlight_fg() {
 	printf '\e]19;%s\a' "$1"
 }
 
-__set_terminal_highlight_bg {
+__set_terminal_highlight_bg() {
 	printf '\e]17;%s\a' "$1"
 }
 
