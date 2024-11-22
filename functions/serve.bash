@@ -9,7 +9,7 @@ serve() {
 		shift
 		if [[ "$arg" == --* ]]
 		then
-			set -- "$arg"
+			set -- "$@" "$arg"
 			continue
 		fi
 		local dir="$arg"
