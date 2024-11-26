@@ -217,34 +217,29 @@ __git_ps1() {
 # not reported.
 #
 gitcheck() {
-	__git_controlled() {
-		git status -s
-	} &>/dev/null
-
-	__untracked_files() {
-		git ls-files --other --directory --exclude-standard | grep -q '.'
-	} &>/dev/null
-
-	__uncommitted_changes() {
-		! git diff --quiet >/dev/null
-	} &>/dev/null
-
-	__ahead_of_master() {
-		git log --oneline origin/master..@ | grep -q '.'
-	} &>/dev/null
-
-	__print_status() {
-		printf "\e[1;34m%s\e[m\n" "$PWD"
-		git status
-	}
-
-	local dir
-	# XXX: This will break if pathnames contain spaces.
-	# Consider rewriting using `-exec` argument to `find`.
-	# https://www.shellcheck.net/wiki/SC2044
-	for dir in $(find ~ -type d -name .git 2>/dev/null)
-	do
+	find ~ -type d -name .git -exec sh -c '
 		cd $(dirname $0) || exit
+
+		__git_controlled() {
+			git status -s
+		} &>/dev/null
+
+		__untracked_files() {
+			git ls-files --other --directory --exclude-standard | grep -q '.'
+		} &>/dev/null
+
+		__uncommitted_changes() {
+			! git diff --quiet >/dev/null
+		} &>/dev/null
+
+		__ahead_of_master() {
+			git log --oneline origin/master..@ | grep -q '.'
+		} &>/dev/null
+
+		__print_status() {
+			printf "\e[1;34m%s\e[m\n" "$PWD"
+			git status
+		}
 
 		if __git_controlled && {
 			__uncommitted_changes ||
@@ -253,13 +248,7 @@ gitcheck() {
 		} then
 			__print_status
 		fi
-	done
-	unset \
-		__git_controlled \
-		__untracked_files \
-		__uncommitted_changes \
-		__ahead_of_master \
-		__print_status
+	' {} \; 2>/dev/null
 }
 
 
