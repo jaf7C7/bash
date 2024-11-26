@@ -174,20 +174,19 @@ char2hex() {
 gitcheck() {
 	__git_controlled() {
 		git status -s
-	} >/dev/null 2>&1
+	} &>/dev/null
 
 	__untracked_files() {
-		git ls-files --other --directory --exclude-standard |
-		grep -q '.'
-	} >/dev/null 2>&1
+		git ls-files --other --directory --exclude-standard | grep -q '.'
+	} &>/dev/null
 
 	__uncommitted_changes() {
-		! git diff --quiet >/dev/null 2>&1
-	} >/dev/null 2>&1
+		! git diff --quiet >/dev/null
+	} &>/dev/null
 
 	__ahead_of_master() {
 		git log --oneline origin/master..@ | grep -q '.'
-	} >/dev/null 2>&1
+	} &>/dev/null
 
 	__print_status() {
 		printf "\e[1;34m%s\e[m\n" "$PWD"
