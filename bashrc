@@ -1,7 +1,19 @@
 # Do nothing if not interactive.
-[[ $- == *i* ]] || return
+if [[ $- != *i* ]]
+then
+	return
+fi
 
-[[ -f /etc/bashrc ]] && . /etc/bashrc
+# Source system defaults if they exist.
+if [[ -f /etc/bashrc ]]
+then
+	. /etc/bashrc
+fi
+
+
+#
+# Shell variables (local to shell - not exported)
+#
 
 PS1='\$ '
 PROMPT_COMMAND='printf "\e]0;%s\a" "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"'
@@ -11,27 +23,56 @@ HISTSIZE=10000
 HISTIGNORE='[fb]g*:%*'
 HISTCONTROL=ignoreboth
 
+
+#
+# Environment variables (global - exported to subprocesses)
+#
+
+if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]
+then
+	export PATH="$HOME/.local/bin:$PATH"
+fi
 export EDITOR='vi'
 export EXINIT='set nocp tm=10 ul=0 bs= ai ci sw=0 hidden cpo+=n backup backupdir=~/.config/vim/backups,.,~/ nosmd noru hl=8r,~i,@b,dn,eb,mb,Mb,nb,rb,sr,Ss,tn,cr,vr,wb,Wn,+r,=n | map!  '
 export LESSOPEN='||/usr/bin/lesspipe.sh %s'
 export INPUTRC=~/.config/readline/inputrc
 export NPM_CONFIG_PREFIX=~/.local
 export GIT_HOOKS=~/Projects/git-hooks
+: "${TMP=${TEMP:=/tmp}}" ; export TMP TEMP
 
-if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]
-then
-	PATH="$HOME/.local/bin:$PATH"
-fi
 
-shopt -s histappend  # Append to history file, don't overwrite
-shopt -s globstar  # Allow '**'
-shopt -s failglob  # Command fails if glob does not match
+#
+# Shell options
+#
 
-# Disable Ctrl-S pausing input.
-stty -ixon
+shopt -s histappend  # Append to history file, don't overwrite.
+shopt -s globstar  # Allow recursive globbing with '**'.
+shopt -s failglob  # Command fails if glob does not match.
+
+
+#
+# TTY options
+#
+
+stty -ixon  # Disable Ctrl-S pausing input.
+
+
+#
+# Readline options
+#
 
 set -o vi
-bind '"\C-h": backward-kill-word'  # Ctrl-Backspace
+test -r "$INPUTRC" || bind '"\C-h": backward-kill-word'  # Ctrl-Backspace.
+if [[ -n $INSIDE_EMACS ]]
+then
+	unset PROMPT_COMMAND
+	set -o emacs
+fi
+
+
+#
+# Shell aliases
+#
 
 alias ls='ls --color'
 alias grep='grep --color'
@@ -49,12 +90,11 @@ if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null
 then
 	alias code=codium
 fi
-if [[ -n $INSIDE_EMACS ]]
-then
-	unset PROMPT_COMMAND
-	set -o emacs
-fi
 
+
+#
+# Shell functions
+#
 
 # Usage:
 # 	`args`: List shell arguments in index order.
@@ -64,18 +104,19 @@ fi
 # Example:
 # 	$ set -- foo.py bar.py
 # 	$ args
-#	1 foo.py
-#	2 bar.py
+#	   1 foo.py
+#	   2 bar.py
 #	$ e 2  # executes `vi bar.py`
 #	$ e oo  # executes `vi foo.py`
 #
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
-alias e='__edit_arg "$@"'
-__edit_arg() {
+alias e='__e "$@"'
+__e() {
 	local q
 	eval "q=\${$#}"
 	case "$q" in
 	*[![:digit:]]*)
+		# `$q` contains a non-digit character.
 		while (( $# > 1 ))
 		do
 			# RHS must be *unquoted* to enable pattern matching.
@@ -88,6 +129,7 @@ __edit_arg() {
 			shift
 		done ;;
 	*)
+		# `$q` contains only digits.
 		eval "q=\${$q}"
 	esac
 	"${EDITOR:-vi}" "$q"
@@ -150,7 +192,7 @@ char2hex() {
 }
 
 
-# Usage: Add `$(__git_ps1)` to your PS1 or PROMPT_COMMAND string.
+# Usage: PROMPT_COMMAND='printf "\e]0;%s\a" "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"'
 #
 # A much simplified (and much quicker) version of the prompt which ships
 # with `git`.
@@ -197,6 +239,9 @@ gitcheck() {
 	}
 
 	local dir
+	# XXX: This will break if pathnames contain spaces.
+	# Consider rewriting using `-exec` argument to `find`.
+	# https://www.shellcheck.net/wiki/SC2044
 	for dir in $(find ~ -type d -name .git 2>/dev/null)
 	do
 		cd $(dirname $0) || exit
@@ -218,10 +263,12 @@ gitcheck() {
 }
 
 
-# Usage: serve <directory>
+# Usage: serve <directory> [browser-sync options] &>serve.out &
 #
 # Serve contents of <directory>, watching all files.  Any long options will be
 # passed to browser-sync.
+#
+# Execute this function in the background to stop it from blocking.
 #
 serve() {
 	local arg
@@ -245,12 +292,12 @@ serve() {
 }
 
 
-# Usage: mdprev <markdown_file> &
+# Usage: mdprev <markdown_file> &>mdprev.out &
 #
 # Renders the markdown file as html, opening the rendered html in the browser
 # and reloading the page when the file changes.
 #
-# Make sure to execute this function in the background to stop it from blocking.
+# Execute this function in the background to stop it from blocking.
 #
 mdprev() {
 	if ! command -v entr &>/dev/null
@@ -263,15 +310,12 @@ mdprev() {
 		echo 'browser-sync required' >&2
 		return 1
 	fi
-	local tmpdir=$(mktemp -d mdprev_XXXXXXXX)
+	local tmpdir=$(mktemp -d ${TMP}/mdprev_${1}_XXXXXXXX)
 	local in=$1
 	local out=${tmpdir}/index.html
-	local log=${tmpdir}/browser-sync.log
-	entr -n pandoc -so "$out" -M title:"$1" /_ <<<"$1" &>/dev/null &
-	local entr_pid=$!
-	browser-sync start -s "$tmpdir" -f "$out" &>"$log" &
-	local bs_pid=$1
-	wait -f $entr_pid $bs_pid
+	entr -n pandoc -so "$out" -M title:"$1" /_ <<<"$1" &
+	trap "kill $!" RETURN
+	browser-sync start -s "$tmpdir" -f "$out"
 }
 
 
