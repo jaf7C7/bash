@@ -2,7 +2,7 @@
 #
 # https://www.invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
 #
-# Colors can be hexcodes or color names
+# Colors can be hexcodes or color names: e.g. `#5fd7af` or `aquamarine3`.
 
 __set_terminal_fg() {
 	printf '\e]10;%s\a' "$1"

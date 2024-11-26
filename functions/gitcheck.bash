@@ -26,6 +26,7 @@ gitcheck() {
 		git status
 	}
 
+	local dir
 	for dir in $(find ~ -type d -name .git)
 	do
 		cd $(dirname $0) || exit
@@ -38,4 +39,10 @@ gitcheck() {
 			print_status
 		fi
 	done
+	unset \
+		git_controlled \
+		untracked_files \
+		uncommitted_changes \
+		ahead_of_master \
+		print_status
 }
