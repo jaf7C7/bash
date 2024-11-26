@@ -218,7 +218,7 @@ __git_ps1() {
 #
 gitcheck() {
 	find ~ -type d -name .git -exec sh -c '
-		cd $(dirname $0) || exit
+		cd "$(dirname $0)" || exit
 
 		__git_controlled() {
 			git status -s
