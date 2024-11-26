@@ -48,7 +48,6 @@ alias diff='diff --color'
 alias tree='tree --gitignore'
 alias args='for _; do printf "%4d %s\\n" $((++i)) "$_"; done; unset i'
 alias open='xdg-open'
-alias todo='gnome-terminal --tab -t TODO -- vi ~/TODO.md'
 if [[ $OS == 'Windows_NT' ]]
 then
 	alias python='winpty python'
@@ -59,4 +58,9 @@ fi
 if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null
 then
 	alias code=codium
+fi
+if [[ -n $INSIDE_EMACS ]]
+then
+	unset PROMPT_COMMAND
+	set -o emacs
 fi
