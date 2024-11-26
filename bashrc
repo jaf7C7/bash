@@ -56,30 +56,12 @@ then
 fi
 
 
-# Usage: Add `$(__git_ps1)` to your PS1 or PROMPT_COMMAND string.
-#
-# A simplified (and much quicker) version of the prompt which ships
-# with `git(1)`.
-#
-__git_ps1() {
-	if ! git status -s &>/dev/null
-	then
-		return
-	fi
-	local current=$(git branch --show-current)
-	if [[ -z $current ]]
-	then
-		current=$(git rev-parse --short HEAD)
-	fi
-	printf ' (%s)' "$current"
-}
-
-
-# `args`: List shell arguments in index order.
-# `e <int>`: Edit the argument at index `<int>`.
-# `e <str>`: Edit the argument whose name matches `<str>`.
-#
 # Usage:
+# 	`args`: List shell arguments in index order.
+# 	`e <int>`: Edit the argument at index `<int>`.
+# 	`e <str>`: Edit the argument whose name matches `<str>`.
+#
+# Example:
 # 	$ set -- foo.py bar.py
 # 	$ args
 #	1 foo.py
@@ -96,7 +78,9 @@ __edit_arg() {
 	*[![:digit:]]*)
 		while (( $# > 1 ))
 		do
-			if [[ $1 == "*${q}*" ]]
+			# RHS must be *unquoted* to enable pattern matching.
+			# https://mywiki.wooledge.org/BashGuide/TestsAndConditionals
+			if [[ $1 == *${q}* ]]
 			then
 				q=$1
 				break
@@ -166,6 +150,25 @@ char2hex() {
 }
 
 
+# Usage: Add `$(__git_ps1)` to your PS1 or PROMPT_COMMAND string.
+#
+# A much simplified (and much quicker) version of the prompt which ships
+# with `git`.
+#
+__git_ps1() {
+	if ! git status -s &>/dev/null
+	then
+		return
+	fi
+	local current=$(git branch --show-current)
+	if [[ -z $current ]]
+	then
+		current=$(git rev-parse --short HEAD)
+	fi
+	printf ' (%s)' "$current"
+}
+
+
 # Usage: gitcheck
 #
 # Reports on all dirty git repositories under $HOME. Clean repos are
@@ -194,7 +197,7 @@ gitcheck() {
 	}
 
 	local dir
-	for dir in $(find ~ -type d -name .git)
+	for dir in $(find ~ -type d -name .git 2>/dev/null)
 	do
 		cd $(dirname $0) || exit
 
@@ -217,7 +220,8 @@ gitcheck() {
 
 # Usage: serve <directory>
 #
-# Any long options will be passed to browser-sync.
+# Serve contents of <directory>, watching all files.  Any long options will be
+# passed to browser-sync.
 #
 serve() {
 	local arg
@@ -237,8 +241,37 @@ serve() {
 		fi
 		break
 	done
-	gnome-terminal --tab -- \
-		browser-sync start --server "$dir" --files "$dir" "$@"
+	browser-sync start --server "$dir" --files "$dir" "$@"
+}
+
+
+# Usage: mdprev <markdown_file> &
+#
+# Renders the markdown file as html, opening the rendered html in the browser
+# and reloading the page when the file changes.
+#
+# Make sure to execute this function in the background to stop it from blocking.
+#
+mdprev() {
+	if ! command -v entr &>/dev/null
+	then
+		echo 'entr required' >&2
+		return 1
+	fi
+	if ! command -v browser-sync &>/dev/null
+	then
+		echo 'browser-sync required' >&2
+		return 1
+	fi
+	local tmpdir=$(mktemp -d mdprev_XXXXXXXX)
+	local in=$1
+	local out=${tmpdir}/index.html
+	local log=${tmpdir}/browser-sync.log
+	entr -n pandoc -so "$out" -M title:"$1" /_ <<<"$1" &>/dev/null &
+	local entr_pid=$!
+	browser-sync start -s "$tmpdir" -f "$out" &>"$log" &
+	local bs_pid=$1
+	wait -f $entr_pid $bs_pid
 }
 
 
@@ -264,9 +297,17 @@ __set_terminal_highlight_bg() {
 	printf '\e]17;%s\a' "$1"
 }
 
-__set_terminal_colors() {
-	__set_terminal_fg '#000000'
-	__set_terminal_bg '#eeffcc'
-	__set_terminal_hl_bg '#5555ff'
-	__set_terminal_hl_fg '#ffffff'
+__set_terminal_cursor_color() {
+	# TODO
+	:
+}
+
+__set_terminal_cursor_size() {
+	# TODO
+	:
+}
+
+__set_terminal_size() {
+	# TODO
+	:
 }
