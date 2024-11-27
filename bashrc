@@ -445,6 +445,8 @@ theme() {
 		__set_linux_console_theme ;;
 	solarized|dark)
 		__set_solarized_theme ;;
+	*)
+		echo "unknown theme: $@" >&2
 	esac
 }
 
