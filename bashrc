@@ -16,7 +16,11 @@ fi
 #
 
 PS1='\$ '
-PROMPT_COMMAND='printf "\e]0;%s\a" "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"'
+PROMPT_COMMAND='__prompt_command'
+if [[ -n $INSIDE_EMACS ]]
+then
+	unset PROMPT_COMMAND
+fi
 CDPATH=.:~:~/Projects:~/Courses
 HISTFILESIZE=1000000
 HISTSIZE=10000
@@ -65,7 +69,6 @@ set -o vi
 test -r "$INPUTRC" || bind '"\C-h": backward-kill-word'  # Ctrl-Backspace.
 if [[ -n $INSIDE_EMACS ]]
 then
-	unset PROMPT_COMMAND
 	set -o emacs
 fi
 
@@ -96,6 +99,15 @@ fi
 # Shell functions
 #
 
+# Usage: PROMPT_COMMAND='__prompt_command'
+#
+# Sets terminal title - e.g. `jfox@fedora:~/.config/bash (master)`
+#
+__prompt_command() {
+	__set_terminal_title "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
+}
+
+
 # Usage:
 # 	`args`: Print a numbered list of shell arguments.
 # 	`e <int>`: Edit the argument at index `<int>`.
@@ -115,7 +127,7 @@ fi
 #	$ e 'ba?'  # fails (as above)
 #
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
-alias e='__e "$@"'
+alias e='__e "${@:?}"'
 __e() {
 	local selection
 	selection=${@: -1:1}
@@ -207,7 +219,7 @@ hex2char() {
 #     0x68 0x65 0x6c 0x6c 0x6f
 #
 char2hex() {
-	python -c "print(*['0x{:0${2:-}x}'.format(ord(c)) for c in '${1}'])"
+	python -c "print(*['0x{:0${2:-}x}'.format(ord(c)) for c in '${1:?}'])"
 }
 
 
@@ -271,7 +283,7 @@ gitcheck() {
 }
 
 
-# Usage: serve <directory> [browser-sync options] &>serve.out &
+# Usage: serve <directory> [browser-sync options] [&> <output_file>] [&]
 #
 # Serve contents of <directory>, watching all files.  Any long options will be
 # passed to browser-sync.
@@ -300,7 +312,7 @@ serve() {
 }
 
 
-# Usage: mdprev <markdown_file> &>mdprev.out &
+# Usage: mdprev <markdown_file> [&> <output_file>] [&]
 #
 # Renders the markdown file as html, opening the rendered html in the browser
 # and reloading the page when the file changes.
@@ -318,7 +330,7 @@ mdprev() {
 		echo 'browser-sync required' >&2
 		return 1
 	fi
-	local tmpdir=$(mktemp -d ${TMP}/mdprev_${1}_XXXXXXXX)
+	local tmpdir=$(mktemp -d ${TMP}/mdprev_${1:?}_XXXXXXXX)
 	local in=$1
 	local out=${tmpdir}/index.html
 	entr -n pandoc -so "$out" -M title:"$1" /_ <<<"$1" &
@@ -331,18 +343,26 @@ mdprev() {
 #
 # Colors can be hexcodes or color names: e.g. `#5fd7af` or `aquamarine3`.
 #
-# https://www.invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
+# https://www.invisible-island.net/xterm/ctlseqs/ctlseqs.html
 #
+__set_terminal_title() {
+	printf '\e]0;%s\a' "${1:?}"
+}
+
 __set_terminal_fg() {
-	printf '\e]10;%s\a' "$1"
+	printf '\e]10;%s\a' "${1:?}"
 }
 
 __set_terminal_bg() {
-	printf '\e]11;%s\a' "$1"
+	printf '\e]11;%s\a' "${1:?}"
 }
 
-__set_terminal_highlight_fg() {
-	printf '\e]19;%s\a' "$1"
+__set_terminal_selection_fg() {
+	printf '\e]19;%s\a' "${1:?}"
+}
+
+__set_terminal_selection_bg() {
+	printf '\e]17;%s\a' "${1:?}"
 }
 
 __set_terminal_palette() {
@@ -351,15 +371,11 @@ __set_terminal_palette() {
 	# 		1 '#ff0000' \
 	# 		2 '#00ff00' \
 	# 		...
-	printf '\e]4;%d;%s\a' "$@"
-}
-
-__set_terminal_highlight_bg() {
-	printf '\e]17;%s\a' "$1"
+	printf '\e]4;%d;%s\a' "${@:?}"
 }
 
 __set_terminal_cursor_color() {
-	printf '\e]12;%s\a' "$1"
+	printf '\e]12;%s\a' "${1:?}"
 }
 
 __set_terminal_cursor_style() {
@@ -370,14 +386,14 @@ __set_terminal_cursor_style() {
         # 4  ⇒  steady underline.
         # 5  ⇒  blinking bar, xterm.
         # 6  ⇒  steady bar, xterm.
-	printf '\e[%d q' "$1"
+	printf '\e[%d q' "${1:?}"
 }
 
 __set_solarized_theme() {
 	__set_terminal_fg '#839496'  # 12
 	__set_terminal_bg '#002B36'  # 8
-	__set_terminal_highlight_fg '#EEE8D5'  # 7
-	__set_terminal_highlight_bg '#6C71C4'  # 13
+	__set_terminal_selection_fg '#EEE8D5'  # 7
+	__set_terminal_selection_bg '#6C71C4'  # 13
 	__set_terminal_palette \
 		0 '#073642' \
 		1 '#DC322F' \
@@ -401,8 +417,8 @@ __set_solarized_theme() {
 __set_linux_console_theme() {
 	__set_terminal_fg '#000000'  # 0
 	__set_terminal_bg '#FFFFFF'  # 15
-	__set_terminal_highlight_fg '#FFFFFF'  # 15
-	__set_terminal_highlight_bg '#5555FF'  # 12
+	__set_terminal_selection_fg '#FFFFFF'  # 15
+	__set_terminal_selection_bg '#5555FF'  # 12
 	__set_terminal_palette \
 		0 '#000000' \
 		1 '#AA0000' \
@@ -420,14 +436,28 @@ __set_linux_console_theme() {
 		13 '#FF55FF' \
 		14 '#55FFFF' \
 		15 '#FFFFFF'
-	export TERMINAL_THEME='linux'
+	export TERMINAL_THEME='linux_console'
 }
 
 theme() {
-	case "$1" in
+	case "${1:?}" in
 	linux|default|light|'')
 		__set_linux_console_theme ;;
 	solarized|dark)
 		__set_solarized_theme ;;
+	esac
+}
+
+title() {
+	case ${1:?} in
+	--unset|-u)
+		shift
+		PROMPT_COMMAND=$__OLD_PROMPT_COMMAND
+		unset __OLD_PROMPT_COMMAND
+		;;
+	*)
+		__OLD_PROMPT_COMMAND=$PROMPT_COMMAND
+		unset PROMPT_COMMAND
+		__set_terminal_title "$1"
 	esac
 }
