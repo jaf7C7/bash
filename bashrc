@@ -97,46 +97,61 @@ fi
 #
 
 # Usage:
-# 	`args`: List shell arguments in index order.
+# 	`args`: Print a numbered list of shell arguments.
 # 	`e <int>`: Edit the argument at index `<int>`.
 # 	`e <str>`: Edit the argument whose name matches `<str>`.
 #
 # Example:
-# 	$ set -- foo.py bar.py
+# 	$ set -- foo bar baz
 # 	$ args
-#	   1 foo.py
-#	   2 bar.py
-#	$ e 2  # executes `vi bar.py`
-#	$ e oo  # executes `vi foo.py`
+#	   1 foo
+#	   2 bar
+#	   3 baz
+#	$ e 2  # executes `vi bar`
+#	$ e 0  # fails (index out of range)
+#	$ e 4  # fails (as above)
+#	$ e oo  # executes `vi foo`
+#	$ e ba  # fails due to duplicate matches
+#	$ e 'ba?'  # fails (as above)
 #
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
 alias e='__e "$@"'
 __e() {
-	local q
-	eval "q=\${$#}"
-	case "$q" in
+	local selection
+	selection=${@: -1:1}
+	set -- "${@:1:$# - 1}"
+	case $selection in
 	*[![:digit:]]*)
-		# `$q` contains a non-digit character.
-
-		# TODO: This will only select the first matching argument.
-		#       Make the command fail and print a message if the match
-		#       is not uniqe.
-		while (( $# > 1 ))
+		local arg
+		for arg
 		do
-			# RHS must be *unquoted* to enable pattern matching.
-			# https://mywiki.wooledge.org/BashGuide/TestsAndConditionals
-			if [[ $1 == *${q}* ]]
-			then
-				q=$1
-				break
-			fi
 			shift
-		done ;;
+			if [[ $arg == *${selection}* ]]
+			then
+				set -- "$@" "$arg"
+			fi
+		done
+		if (( $# > 1 ))
+		then
+			echo "'$selection' matched multiple arguments: $@" >&2
+			echo 'unique match required' >&2
+			return 1
+		fi
+		if (( $# == 0 ))
+		then
+			echo "'$selection' did not match any arguments" >&2
+			return 1
+		fi
+		;;
 	*)
-		# `$q` contains only digits.
-		eval "q=\${$q}"
+		if (( $selection > $# || $selection == 0 ))
+		then
+			echo "'$selection' outside of argument range: 1-$#" >&2
+			return 1
+		fi
+		set -- "${@:${selection}:1}"
 	esac
-	"${EDITOR:-vi}" "$q"
+	"${EDITOR:-vi}" "$@"
 }
 
 
