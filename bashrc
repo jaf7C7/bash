@@ -326,21 +326,89 @@ __set_terminal_highlight_fg() {
 	printf '\e]19;%s\a' "$1"
 }
 
+__set_terminal_palette() {
+	# Usage: __set_terminal_palette \
+	# 		0 '#000000' \
+	# 		1 '#ff0000' \
+	# 		2 '#00ff00' \
+	# 		...
+	printf '\e]4;%d;%s\a' "$@"
+}
+
 __set_terminal_highlight_bg() {
 	printf '\e]17;%s\a' "$1"
 }
 
 __set_terminal_cursor_color() {
-	# TODO
-	:
+	printf '\e]12;%s\a' "$1"
 }
 
-__set_terminal_cursor_size() {
-	# TODO
-	:
+__set_terminal_cursor_style() {
+        # 0  ⇒  blinking block.
+        # 1  ⇒  blinking block (default).
+        # 2  ⇒  steady block.
+        # 3  ⇒  blinking underline.
+        # 4  ⇒  steady underline.
+        # 5  ⇒  blinking bar, xterm.
+        # 6  ⇒  steady bar, xterm.
+	printf '\e[%d q' "$1"
 }
 
-__set_terminal_size() {
-	# TODO
-	:
+__set_solarized_theme() {
+	__set_terminal_fg '#839496'  # 12
+	__set_terminal_bg '#002B36'  # 8
+	__set_terminal_highlight_fg '#EEE8D5'  # 7
+	__set_terminal_highlight_bg '#6C71C4'  # 13
+	__set_terminal_palette \
+		0 '#073642' \
+		1 '#DC322F' \
+		2 '#859900' \
+		3 '#B58900' \
+		4 '#268BD2' \
+		5 '#D33682' \
+		6 '#2AA198' \
+		7 '#EEE8D5' \
+		8 '#002B36' \
+		9 '#CB4B16' \
+		10 '#586E75' \
+		11 '#657B83' \
+		12 '#839496' \
+		13 '#6C71C4' \
+		14 '#93A1A1' \
+		15 '#FDF6E3'
+	export TERMINAL_THEME='solarized'
+}
+
+__set_linux_console_theme() {
+	__set_terminal_fg '#000000'  # 0
+	__set_terminal_bg '#FFFFFF'  # 15
+	__set_terminal_highlight_fg '#FFFFFF'  # 15
+	__set_terminal_highlight_bg '#5555FF'  # 12
+	__set_terminal_palette \
+		0 '#000000' \
+		1 '#AA0000' \
+		2 '#00AA00' \
+		3 '#AA5500' \
+		4 '#0000AA' \
+		5 '#AA00AA' \
+		6 '#00AAAA' \
+		7 '#AAAAAA' \
+		8 '#555555' \
+		9 '#FF5555' \
+		10 '#55FF55' \
+		11 '#FFFF55' \
+		12 '#5555FF' \
+		13 '#FF55FF' \
+		14 '#55FFFF' \
+		15 '#FFFFFF'
+	export TERMINAL_THEME='linux'
+}
+
+theme() {
+	case "$1" in
+	linux|default|light|'')
+		__set_linux_console_theme ;;
+	solarized|dark)
+		__set_solarized_theme ;;
+	esac
 }
