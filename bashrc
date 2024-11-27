@@ -117,6 +117,10 @@ __e() {
 	case "$q" in
 	*[![:digit:]]*)
 		# `$q` contains a non-digit character.
+
+		# TODO: This will only select the first matching argument.
+		#       Make the command fail and print a message if the match
+		#       is not uniqe.
 		while (( $# > 1 ))
 		do
 			# RHS must be *unquoted* to enable pattern matching.
