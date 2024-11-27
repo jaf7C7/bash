@@ -124,7 +124,7 @@ __prompt_command() {
 #	$ e 4  # fails (as above)
 #	$ e oo  # executes `vi foo`
 #	$ e ba  # fails due to duplicate matches
-#	$ e 'ba?'  # fails (as above)
+#	$ e 'ba?'  # fails (`ba?` matches `bar` and `baz`)
 #
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
 alias e='__e "${@:?}"'
