@@ -441,7 +441,7 @@ __set_linux_console_theme() {
 
 theme() {
 	case "${1:?}" in
-	linux|default|light|'')
+	linux|default|light)
 		__set_linux_console_theme ;;
 	solarized|dark)
 		__set_solarized_theme ;;
