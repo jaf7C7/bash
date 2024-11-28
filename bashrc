@@ -102,21 +102,6 @@ fi
 #
 
 
-# Usage: exec <command>
-#
-# Will only exec <command> if there are no background jobs running.
-#
-exec() {
-	if [[ -n $(jobs) ]]
-	then
-		echo 'cannot exec: background jobs running' >&2
-		jobs
-		return 1
-	fi
-	builtin exec "$@"
-}
-
-
 # Usage: PROMPT_COMMAND='__prompt_command'
 #
 # Sets terminal title - e.g. `jfox@fedora:~/.config/bash (master)`
@@ -197,6 +182,21 @@ __e() {
 }
 
 
+# Usage: exec <command>
+#
+# Will only exec <command> if there are no background jobs running.
+#
+exec() {
+	if [[ -n $(jobs) ]]
+	then
+		echo 'cannot exec: background jobs running' >&2
+		jobs
+		return 1
+	fi
+	builtin exec "$@"
+}
+
+
 # Usage: backup [--poweroff]
 #
 # Back up `~/Data` dir to the network drive. A password for the network
@@ -210,16 +210,15 @@ backup() {
 			//192.168.1.1/usb2_sda1 /mnt/network &&
 		rsync --checksum --recursive --compress --verbose \
 			--backup /home/jfox/Data /mnt/network/ &&
-		test "$0" = "--poweroff" &&
+		test "$1" = "--poweroff" &&
 		poweroff
-	' "$@"
+	' backup "$@"
 }
 
 
 # Usage: hex2char <hexcode> [<hexcode>...]
 #
 # Examples:
-#
 #     $ hex2char 0x68 0x65 0x6c 0x6c 0x6f
 #     hello
 #
@@ -238,7 +237,6 @@ hex2char() {
 # Usage: char2hex <string> [<zero padding width>]
 #
 # Examples:
-#
 #     $ char2hex ›
 #     0x203a
 #
@@ -250,6 +248,32 @@ hex2char() {
 #
 char2hex() {
 	python -c "print(*['0x{:0${2:-}x}'.format(ord(c)) for c in '${1:?}'])"
+}
+
+
+# Usage: uriencode <raw_URI>
+#
+# Encodes an entire URI string.
+#
+# Example:
+#	$ uriencode 'https://example.com?param=echo "hello, world!"'
+#	https://example.com?param=echo%20%22hello,%20world!%22
+#
+uriencode() {
+	node -p "encodeURI('$1')";
+}
+
+
+# Usage: uridecode <encoded_URI>
+#
+# Decodes an entire URI string.
+#
+# Example:
+#	$ uridecode 'https://example.com?param=echo%20%22hello,%20world!%22'
+#	https://example.com?param=echo "hello, world!"
+#
+uridecode() {
+	node -p "decodeURI('$1')";
 }
 
 
@@ -469,9 +493,18 @@ __set_linux_console_theme() {
 	export TERMINAL_THEME='linux_console'
 }
 
+
+# Usage: theme <theme_name>
+#
+# Sets terminal color scheme.
+#
+# Theme name (alias):
+# 	default (light)
+# 	solarized (dark)
+#
 theme() {
 	case "${1:?}" in
-	linux|default|light)
+	default|light)
 		__set_linux_console_theme ;;
 	solarized|dark)
 		__set_solarized_theme ;;
@@ -480,6 +513,11 @@ theme() {
 	esac
 }
 
+
+# Usage: title <string>
+#
+# Sets terminal title *for current shell*.
+#
 title() {
 	case ${1:?} in
 	--unset|-u)
