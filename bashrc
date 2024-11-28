@@ -52,6 +52,7 @@ export GIT_HOOKS=~/Projects/git-hooks
 shopt -s histappend  # Append to history file, don't overwrite.
 shopt -s globstar  # Allow recursive globbing with '**'.
 shopt -s failglob  # Command fails if glob does not match.
+shopt -s checkjobs  # Warn about background jobs when exiting the shell.
 
 
 #
@@ -82,6 +83,7 @@ alias grep='grep --color'
 alias diff='diff --color'
 alias tree='tree --gitignore'
 alias open='xdg-open'
+alias shlvl='echo $SHLVL'
 if [[ $OS == 'Windows_NT' ]]
 then
 	alias python='winpty python'
@@ -99,12 +101,33 @@ fi
 # Shell functions
 #
 
+
+# Usage: exec <command>
+#
+# Will only exec <command> if there are no background jobs running.
+#
+exec() {
+	if [[ -n $(jobs) ]]
+	then
+		echo 'cannot exec: background jobs running' >&2
+		jobs
+		return 1
+	fi
+	builtin exec "$@"
+}
+
+
 # Usage: PROMPT_COMMAND='__prompt_command'
 #
 # Sets terminal title - e.g. `jfox@fedora:~/.config/bash (master)`
 #
 __prompt_command() {
-	__set_terminal_title "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
+	local str="${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
+	if (( SHLVL > 1 ))
+	then
+		str="[${SHLVL}] ${str}"
+	fi
+	__set_terminal_title "$str"
 }
 
 
@@ -466,7 +489,6 @@ title() {
 		;;
 	*)
 		__OLD_PROMPT_COMMAND=$PROMPT_COMMAND
-		unset PROMPT_COMMAND
-		__set_terminal_title "$1"
+		PROMPT_COMMAND="__set_terminal_title '$1'"
 	esac
 }
