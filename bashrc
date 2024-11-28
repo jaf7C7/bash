@@ -264,7 +264,7 @@ char2hex() {
 #	https://example.com?param=echo%20%22hello,%20world!%22
 #
 uriencode() {
-	node -p "encodeURI('$1')";
+	node -p "encodeURI('$1')"
 }
 
 
@@ -277,7 +277,7 @@ uriencode() {
 #	https://example.com?param=echo "hello, world!"
 #
 uridecode() {
-	node -p "decodeURI('$1')";
+	node -p "decodeURI('$1')"
 }
 
 
