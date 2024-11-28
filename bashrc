@@ -111,7 +111,7 @@ fi
 #
 __prompt_command() {
 	local str="${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
-	if [[ SHLVL -gt 1 ]]
+	if [[ $SHLVL -gt 1 ]]
 	then
 		str="[${SHLVL}] ${str}"
 	fi
@@ -140,15 +140,16 @@ __prompt_command() {
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
 alias e='__e $# "${@:?}"'
 __e() {
+	# TODO: Set up completion for this.
 	local argc=$1
 	shift
-	if [[ $# -gt $argc + 1 ]]
+	if [[ $# -gt $(($argc + 1)) ]]
 	then
 		shift $argc
 		echo "too many arguments: $@" >&2
 		return 1
 	fi
-	local sel${@: -1:1}
+	local sel=${@: -1:1}
 	set -- "${@:1:$# - 1}"
 	case $sel in
 	*[![:digit:]]*)
