@@ -50,16 +50,12 @@ export GIT_HOOKS=~/Projects/git-hooks
 #
 
 shopt -s globstar  # Allow recursive globbing with '**'.
+shopt -s extglob  # Allow extended pattern matching.
 shopt -s histappend  # Append to history file, don't overwrite.
 shopt -s lithist  # Preserve formatting of multiline commands in history.
 shopt -s no_empty_cmd_completion  # Don't try to complete empty lines.
-shopt -s histreedit  # Re-edit failed history substitutions.
-shopt -s histverify  # Load history expansion into readline buffer instead of executing.
 shopt -s checkjobs  # Warn about background jobs when exiting the shell.
-
-# These affect `%?<str>` job control.
-#shopt -s failglob  # Command fails if glob does not match.
-#shopt -s nullglob  # Failed globs return null string.
+shopt -ou histexpand  # Turn off `!` history expansion.
 
 
 #
@@ -115,7 +111,7 @@ fi
 #
 __prompt_command() {
 	local str="${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
-	if (( SHLVL > 1 ))
+	if [[ SHLVL -gt 1 ]]
 	then
 		str="[${SHLVL}] ${str}"
 	fi
@@ -146,7 +142,7 @@ alias e='__e $# "${@:?}"'
 __e() {
 	local argc=$1
 	shift
-	if (( $# > $argc + 1 ))
+	if [[ $# -gt $argc + 1 ]]
 	then
 		shift $argc
 		echo "too many arguments: $@" >&2
@@ -165,20 +161,20 @@ __e() {
 				set -- "$@" "$arg"
 			fi
 		done
-		if (( $# > 1 ))
+		if [[ $# -gt 1 ]]
 		then
 			echo "'$sel' matched multiple arguments: $@" >&2
 			echo 'unique match required' >&2
 			return 1
 		fi
-		if (( $# == 0 ))
+		if [[ $# -eq 0 ]]
 		then
 			echo "'$sel' did not match any arguments" >&2
 			return 1
 		fi
 		;;
 	*)
-		if (( $sel > $# || $sel == 0 ))
+		if [[ $sel -gt $# || $sel -eq 0 ]]
 		then
 			echo "'$sel' outside of argument range: 1-$#" >&2
 			return 1
