@@ -49,10 +49,17 @@ export GIT_HOOKS=~/Projects/git-hooks
 # Shell options
 #
 
-shopt -s histappend  # Append to history file, don't overwrite.
 shopt -s globstar  # Allow recursive globbing with '**'.
-shopt -s failglob  # Command fails if glob does not match.
+shopt -s histappend  # Append to history file, don't overwrite.
+shopt -s lithist  # Preserve formatting of multiline commands in history.
+shopt -s no_empty_cmd_completion  # Don't try to complete empty lines.
+shopt -s histreedit  # Re-edit failed history substitutions.
+shopt -s histverify  # Load history expansion into readline buffer instead of executing.
 shopt -s checkjobs  # Warn about background jobs when exiting the shell.
+
+# These affect `%?<str>` job control.
+#shopt -s failglob  # Command fails if glob does not match.
+#shopt -s nullglob  # Failed globs return null string.
 
 
 #
