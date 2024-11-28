@@ -127,41 +127,48 @@ __prompt_command() {
 #	$ e 'ba?'  # fails (`ba?` matches `bar` and `baz`)
 #
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
-alias e='__e "${@:?}"'
+alias e='__e $# "${@:?}"'
 __e() {
-	local selection
-	selection=${@: -1:1}
+	local argc=$1
+	shift
+	if (( $# > $argc + 1 ))
+	then
+		shift $argc
+		echo "too many arguments: $@" >&2
+		return 1
+	fi
+	local sel${@: -1:1}
 	set -- "${@:1:$# - 1}"
-	case $selection in
+	case $sel in
 	*[![:digit:]]*)
 		local arg
 		for arg
 		do
 			shift
-			if [[ $arg == *${selection}* ]]
+			if [[ $arg == *${sel}* ]]
 			then
 				set -- "$@" "$arg"
 			fi
 		done
 		if (( $# > 1 ))
 		then
-			echo "'$selection' matched multiple arguments: $@" >&2
+			echo "'$sel' matched multiple arguments: $@" >&2
 			echo 'unique match required' >&2
 			return 1
 		fi
 		if (( $# == 0 ))
 		then
-			echo "'$selection' did not match any arguments" >&2
+			echo "'$sel' did not match any arguments" >&2
 			return 1
 		fi
 		;;
 	*)
-		if (( $selection > $# || $selection == 0 ))
+		if (( $sel > $# || $sel == 0 ))
 		then
-			echo "'$selection' outside of argument range: 1-$#" >&2
+			echo "'$sel' outside of argument range: 1-$#" >&2
 			return 1
 		fi
-		set -- "${@:${selection}:1}"
+		set -- "${@:${sel}:1}"
 	esac
 	"${EDITOR:-vi}" "$@"
 }
