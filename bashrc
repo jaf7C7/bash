@@ -124,23 +124,20 @@ __prompt_command() {
 # 	`e <int>`: Edit the argument at index `<int>`.
 # 	`e <str>`: Edit the argument whose name matches `<str>`.
 #
+# Easier file access and editing directly from the shell.
+#
 # Example:
-# 	$ set -- foo bar baz
+# 	$ set -- $(git ls-files \*.py)
 # 	$ args
-#	   1 foo
-#	   2 bar
-#	   3 baz
-#	$ e 2  # executes `vi bar`
-#	$ e 0  # fails (index out of range)
-#	$ e 4  # fails (as above)
-#	$ e oo  # executes `vi foo`
-#	$ e ba  # fails due to duplicate matches
-#	$ e 'ba?'  # fails (`ba?` matches `bar` and `baz`)
+#	   1 foo.py
+#	   2 bar.py
+#	   3 baz.py
+#	$ e 2  # executes `vi bar.py`
+#	$ e foo  # executes `vi foo.py`
 #
 alias args='i=0 ; for _ ; do printf "%4d %s\\n" $((++i)) "$_" ; done ; unset i'
 alias e='__e $# "${@:?}"'
 __e() {
-	# TODO: Set up completion for this.
 	local argc=$1
 	shift
 	if [[ $# -gt $(($argc + 1)) ]]
@@ -188,7 +185,7 @@ __e() {
 
 # Usage: exec <command>
 #
-# Will only exec <command> if there are no background jobs running.
+# Only exec <command> if there are no background jobs running.
 #
 exec() {
 	if [[ -n $(jobs) ]]
@@ -341,12 +338,13 @@ gitcheck() {
 }
 
 
-# Usage: serve <directory> [browser-sync options] [&> <output_file>] [&]
+# Usage: serve <directory> [browser-sync options]
 #
 # Serve contents of <directory>, watching all files.  Any long options will be
 # passed to browser-sync.
 #
-# Execute this function in the background to stop it from blocking.
+# Example:
+# 	serve my_site &>serve.out &
 #
 serve() {
 	local arg
@@ -370,12 +368,13 @@ serve() {
 }
 
 
-# Usage: mdprev <markdown_file> [&> <output_file>] [&]
+# Usage: mdprev <markdown_file>
 #
 # Renders the markdown file as html, opening the rendered html in the browser
 # and reloading the page when the file changes.
 #
-# Execute this function in the background to stop it from blocking.
+# Example:
+# 	mdprev foo.md &>mdprev.out &
 #
 mdprev() {
 	if ! command -v entr &>/dev/null
@@ -397,7 +396,7 @@ mdprev() {
 }
 
 
-# Usage: termctl [-p|passthrough] <command> [<args>...]
+# Usage: termctl [-p|--passthrough] <command> [<args>...]
 #
 # Functions for configuring the terminal via escape sequences. The `-p` or
 # `--passthrough` option wraps escape sequences in the tmux passthrough escape
