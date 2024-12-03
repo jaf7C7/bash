@@ -494,9 +494,13 @@ termctl() {
 	theme)
 		case $2 in
 		linux|light)
-			seq=$(__set_linux_console_theme) ;;
+			seq=$(__set_linux_console_theme)
+			export TERMINAL_THEME='linux_console'
+			;;
 		solarized|dark)
-			seq=$(__set_solarized_theme) ;;
+			seq=$(__set_solarized_theme)
+			export TERMINAL_THEME='solarized'
+			;;
 		*)
 			echo "Unknown theme: $@" >&2
 			return 1
@@ -607,7 +611,6 @@ __set_solarized_theme() {
 		13 '#6C71C4' \
 		14 '#93A1A1' \
 		15 '#FDF6E3'
-	export TERMINAL_THEME='solarized'
 }
 
 __set_linux_console_theme() {
@@ -632,7 +635,6 @@ __set_linux_console_theme() {
 		13 '#FF55FF' \
 		14 '#55FFFF' \
 		15 '#FFFFFF'
-	export TERMINAL_THEME='linux_console'
 }
 
 __tmux_passthrough() {
