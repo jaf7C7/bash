@@ -426,9 +426,6 @@ mdprev() {
 # 		- selection-bg
 # 		- cursor
 # 		- 0, 1, 2, ..., 15  (color index)
-# 		TODO: Any named item (i.e. not a color index) can be set by
-# 		color index as well as a <color> definition.
-# 		e.g. `termctl color cursor 1` sets a red cursor.
 #
 # 	pallete 0 <color> 1 <color> ... 15 <color>
 # 		Sets each index 0-15 to the specified color. For setting an
@@ -453,91 +450,84 @@ mdprev() {
 termctl() {
 	local seq
 	local passthrough
-	while [[ $# -gt 0 ]]
-	do
-		case $1 in
-		-p|--passthrough)
-			passthrough='true'
+	case $1 in
+	-p|--passthrough)
+		passthrough='true'
+		shift
+	esac
+	case $1 in
+	title)
+		if [[ -n $2 ]]
+		then
+			__OLD_PROMPT_COMMAND=$PROMPT_COMMAND
+			PROMPT_COMMAND="__set_terminal_title '$2'"
+		else
 			shift
-			;;
-		title)
-			if [[ -n $2 ]]
-			then
-				__OLD_PROMPT_COMMAND=$PROMPT_COMMAND
-				PROMPT_COMMAND="__set_terminal_title '$2'"
-			else
-				shift
-				PROMPT_COMMAND=$__OLD_PROMPT_COMMAND
-				unset __OLD_PROMPT_COMMAND
-			fi
-			return 0
-			;;
-		color)
-			# TODO: Set a fg/bg/selection to color <index>:
-			#       	termctl color fg 5
-			#       And update usage comment.
-			case $2 in
-			fg)
-				seq=$(__set_terminal_fg "$3") ;;
-			bg)
-				seq=$(__set_terminal_bg "$3") ;;
-			selection-fg)
-				seq=$(__set_terminal_selection_fg "$3") ;;
-			selection-bg)
-				seq=$(__set_terminal_selection_bg "$3") ;;
-			cursor)
-				seq=$(__set_terminal_cursor_color "$3") ;;
-			[0-9]|1[0-5])
-				# Set a single color value by index:
-				# 	termctl color 4 '#0000ff'
-				seq=$(__set_terminal_palette "$2" "$3") ;;
-			*)
-				echo "Unknown color keyword: $2" >&2
-				return 1
-			esac
-			shift 3
-			;;
-		palette)
-			shift 2
-			seq=$(__set_terminal_palette "$@")
-			shift $#
-			;;
-		theme)
-			case $2 in
-			linux|light)
-				seq=$(__set_linux_console_theme) ;;
-			solarized|dark)
-				seq=$(__set_solarized_theme) ;;
-			*)
-				echo "unknown theme: $@" >&2
-				return 1
-			esac
-			shift 2
-			;;
+			PROMPT_COMMAND=$__OLD_PROMPT_COMMAND
+			unset __OLD_PROMPT_COMMAND
+		fi
+		return 0
+		;;
+	color)
+		case $2 in
+		fg)
+			seq=$(__set_terminal_fg "$3") ;;
+		bg)
+			seq=$(__set_terminal_bg "$3") ;;
+		selection-fg)
+			seq=$(__set_terminal_selection_fg "$3") ;;
+		selection-bg)
+			seq=$(__set_terminal_selection_bg "$3") ;;
 		cursor)
-			# Non-blinking cursor styles not implemented.
-			case $2 in
-			block)
-				seq=$(__set_terminal_cursor_shape 1) ;;
-			bar)
-				seq=$(__set_terminal_cursor_shape 5) ;;
-			underline)
-				seq=$(__set_terminal_cursor_shape 3) ;;
-			*)
-				echo "unknown cursor style: $2" >&2
-				return 1
-			esac
-			shift 2
-			;;
-		size)
-			__set_terminal_size "${2:-80}" "${3:-24}"
-			shift 3
-			;;
+			seq=$(__set_terminal_cursor_color "$3") ;;
+		[0-9]|1[0-5])
+			seq=$(__set_terminal_palette "$2" "$3") ;;
 		*)
-			echo "Unknown command: $1" >&2
+			echo "Unknown color keyword: $2" >&2
 			return 1
 		esac
-	done
+		;;
+	palette)
+		shift 2
+		seq=$(__set_terminal_palette "$@")
+		;;
+	theme)
+		case $2 in
+		linux|light)
+			seq=$(__set_linux_console_theme) ;;
+		solarized|dark)
+			seq=$(__set_solarized_theme) ;;
+		*)
+			echo "Unknown theme: $@" >&2
+			return 1
+		esac
+		;;
+	cursor)
+		# Non-blinking cursor styles not implemented.
+		case $2 in
+		block)
+			seq=$(__set_terminal_cursor_shape 1) ;;
+		bar)
+			seq=$(__set_terminal_cursor_shape 5) ;;
+		underline)
+			seq=$(__set_terminal_cursor_shape 3) ;;
+		*)
+			echo "Unknown cursor style: $2" >&2
+			return 1
+		esac
+		;;
+	size)
+		if [[ $# -lt 3 ]]
+		then
+			echo "Usage: termctl size <lines> <columns>" >&2
+			return 1
+		fi
+		seq=$(__set_terminal_size "$2" "$3")
+		;;
+	*)
+		echo "Unknown command: $1" >&2
+		return 1
+	esac
 	if [[ -n $passthrough ]]
 	then
 		__tmux_passthrough '%b' "$seq"
@@ -547,7 +537,7 @@ termctl() {
 }
 
 __set_terminal_size() {
-	# Usage: __set_terminal_size <columns> <lines>
+	# Usage: __set_terminal_size <lines> <columns>
 	printf '\e[8;%d;%dt' "${1:?}" "${2:?}"
 }
 
