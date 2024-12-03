@@ -111,7 +111,7 @@ fi
 #
 __prompt_command() {
 	local str="${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
-	if [[ $SHLVL -gt 1 ]]
+	if [[ $SHLVL -gt 1 && -z $TMUX ]]
 	then
 		str="[${SHLVL}] ${str}"
 	fi
@@ -397,12 +397,160 @@ mdprev() {
 }
 
 
-# Functions for configuring the terminal.
+# Usage: termctl [-p|passthrough] <command> [<args>...]
 #
-# Colors can be hexcodes or color names: e.g. `#5fd7af` or `aquamarine3`.
+# Functions for configuring the terminal via escape sequences. The `-p` or
+# `--passthrough` option wraps escape sequences in the tmux passthrough escape
+# sequence.
 #
+# Tmux passthrough sequence:
+# https://github.com/tmux/tmux/wiki/FAQ#what-is-the-passthrough-escape-sequence-and-how-do-i-use-it
+#
+# Control sequences from `xterm(1)`:
 # https://www.invisible-island.net/xterm/ctlseqs/ctlseqs.html
 #
+# Commands:
+# 	title [<title>]
+# 		Sets the new title set by `__prompt_command` to <title>, the
+# 		old value is saved.  If <title> is omitted, the old value is
+# 		restored.  Requires the `__prompt_command` function, and
+# 		`PROMPT_COMMAND='__prompt_command'` in `~/.bashrc`.
+#
+# 	color <item> <color>
+# 		Sets the given item to color <color>. <color> can be a hex
+# 		value `#rrggbb` or an rgb value `rgb:rr/gg/bb` or a color name,
+# 		e.g. `deepseagreen`. <item> can be:
+# 		- fg
+# 		- bg
+# 		- selection-fg
+# 		- selection-bg
+# 		- cursor
+# 		- 0, 1, 2, ..., 15  (color index)
+# 		TODO: Any named item (i.e. not a color index) can be set by
+# 		color index as well as a <color> definition.
+# 		e.g. `termctl color cursor 1` sets a red cursor.
+#
+# 	pallete 0 <color> 1 <color> ... 15 <color>
+# 		Sets each index 0-15 to the specified color. For setting an
+# 		entire palette at once.
+#
+# 	theme <theme>
+#		Sets the terminal theme to <theme>. <theme> can be:
+#		- 'linux'
+#		- 'solarized'
+#		- 'light' (alias for 'linux')
+#		- 'dark' (alias for 'solarized')
+#		Themes set the foreground, background, color palette, and
+#		selection foreground and background.
+#
+# 	cursor <shape>
+# 		Sets cursor shape to <shape>. <shape> can be:
+# 		- 'block'
+# 		- 'bar'
+# 		- 'underline'
+# 		All cursors blink.
+#
+termctl() {
+	local seq
+	local passthrough
+	while [[ $# -gt 0 ]]
+	do
+		case $1 in
+		-p|--passthrough)
+			passthrough='true'
+			shift
+			;;
+		title)
+			if [[ -n $2 ]]
+			then
+				__OLD_PROMPT_COMMAND=$PROMPT_COMMAND
+				PROMPT_COMMAND="__set_terminal_title '$2'"
+			else
+				shift
+				PROMPT_COMMAND=$__OLD_PROMPT_COMMAND
+				unset __OLD_PROMPT_COMMAND
+			fi
+			return 0
+			;;
+		color)
+			# TODO: Set a fg/bg/selection to color <index>:
+			#       	termctl color fg 5
+			#       And update usage comment.
+			case $2 in
+			fg)
+				seq=$(__set_terminal_fg "$3") ;;
+			bg)
+				seq=$(__set_terminal_bg "$3") ;;
+			selection-fg)
+				seq=$(__set_terminal_selection_fg "$3") ;;
+			selection-bg)
+				seq=$(__set_terminal_selection_bg "$3") ;;
+			cursor)
+				seq=$(__set_terminal_cursor_color "$3") ;;
+			[0-9]|1[0-5])
+				# Set a single color value by index:
+				# 	termctl color 4 '#0000ff'
+				seq=$(__set_terminal_palette "$2" "$3") ;;
+			*)
+				echo "Unknown color keyword: $2" >&2
+				return 1
+			esac
+			shift 3
+			;;
+		palette)
+			shift 2
+			seq=$(__set_terminal_palette "$@")
+			shift $#
+			;;
+		theme)
+			case $2 in
+			linux|light)
+				seq=$(__set_linux_console_theme) ;;
+			solarized|dark)
+				seq=$(__set_solarized_theme) ;;
+			*)
+				echo "unknown theme: $@" >&2
+				return 1
+			esac
+			shift 2
+			;;
+		cursor)
+			# Non-blinking cursor styles not implemented.
+			case $2 in
+			block)
+				seq=$(__set_terminal_cursor_shape 1) ;;
+			bar)
+				seq=$(__set_terminal_cursor_shape 5) ;;
+			underline)
+				seq=$(__set_terminal_cursor_shape 3) ;;
+			*)
+				echo "unknown cursor style: $2" >&2
+				return 1
+			esac
+			shift 2
+			;;
+		size)
+			__set_terminal_size "${2:-80}" "${3:-24}"
+			shift 3
+			;;
+		*)
+			echo "Unknown command: $1" >&2
+			return 1
+		esac
+	done
+	if [[ -n $passthrough ]]
+	then
+		__tmux_passthrough '%b' "$seq"
+	else
+		printf '%b' "$seq"
+	fi
+}
+
+__set_terminal_size() {
+	# Usage: __set_terminal_size <columns> <lines>
+	printf '\e[8;%d;%dt' "${1:?}" "${2:?}"
+}
+
 __set_terminal_title() {
 	printf '\e]0;%s\a' "${1:?}"
 }
@@ -497,40 +645,22 @@ __set_linux_console_theme() {
 	export TERMINAL_THEME='linux_console'
 }
 
-
-# Usage: theme <theme_name>
-#
-# Sets terminal color scheme.
-#
-# Theme name (alias):
-# 	default (light)
-# 	solarized (dark)
-#
-theme() {
-	case "${1:?}" in
-	default|light)
-		__set_linux_console_theme ;;
-	solarized|dark)
-		__set_solarized_theme ;;
-	*)
-		echo "unknown theme: $@" >&2
-	esac
-}
-
-
-# Usage: title <string>
-#
-# Sets terminal title *for current shell*.
-#
-title() {
-	case ${1:?} in
-	--unset|-u)
-		shift
-		PROMPT_COMMAND=$__OLD_PROMPT_COMMAND
-		unset __OLD_PROMPT_COMMAND
-		;;
-	*)
-		__OLD_PROMPT_COMMAND=$PROMPT_COMMAND
-		PROMPT_COMMAND="__set_terminal_title '$1'"
-	esac
+__tmux_passthrough() {
+	# Works like `printf` but wraps sequence in tmux passthrough sequence.
+	#
+	# Example: __tmux_passthrough '\e[%d q' 1
+	#
+	# https://github.com/tmux/tmux/wiki/FAQ
+	printf "${@:?}" | awk '
+		BEGIN {
+			print("\033Ptmux;")
+		}
+		{
+			gsub("\033", "\033\033")
+			print($0)
+		}
+		END {
+			print("\033\\")
+		}
+	'
 }
