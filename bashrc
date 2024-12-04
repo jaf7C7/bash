@@ -1,13 +1,12 @@
 # Do nothing if not interactive.
-if [[ $- != *i* ]] ; then
+if [[ $- != *i* ]]; then
     return
 fi
 
 # Source system defaults if they exist.
-if [[ -f /etc/bashrc ]] ; then
+if [[ -f /etc/bashrc ]]; then
     . /etc/bashrc
 fi
-
 
 #
 # Shell variables (local to shell - not exported)
@@ -21,12 +20,11 @@ HISTSIZE=10000
 HISTIGNORE='[fb]g*:%*'
 HISTCONTROL=ignoreboth
 
-
 #
 # Environment variables (global - exported to subprocesses)
 #
 
-if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]] ; then
+if [[ -d "$HOME/.local/bin" && "$PATH" != "$HOME/.local/bin":* ]]; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 export EDITOR='vi'
@@ -35,38 +33,35 @@ export LESSOPEN='||/usr/bin/lesspipe.sh %s'
 export INPUTRC=~/.config/readline/inputrc
 export NPM_CONFIG_PREFIX=~/.local
 export GIT_HOOKS=~/Projects/git-hooks
-: "${TMP=${TEMP:=/tmp}}" ; export TMP TEMP
-
+: "${TMP=${TEMP:=/tmp}}"
+export TMP TEMP
 
 #
 # Shell options
 #
 
-shopt -s globstar  # Allow recursive globbing with '**'.
-shopt -s extglob  # Allow extended pattern matching.
-shopt -s histappend  # Append to history file, don't overwrite.
-shopt -s lithist  # Preserve formatting of multiline commands in history.
-shopt -s no_empty_cmd_completion  # Don't try to complete empty lines.
-shopt -s checkjobs  # Warn about background jobs when exiting the shell.
-shopt -ou histexpand  # Turn off `!` history expansion.
-
+shopt -s globstar                # Allow recursive globbing with '**'.
+shopt -s extglob                 # Allow extended pattern matching.
+shopt -s histappend              # Append to history file, don't overwrite.
+shopt -s lithist                 # Preserve formatting of multiline commands in history.
+shopt -s no_empty_cmd_completion # Don't try to complete empty lines.
+shopt -s checkjobs               # Warn about background jobs when exiting the shell.
+shopt -ou histexpand             # Turn off `!` history expansion.
 
 #
 # TTY options
 #
 
-stty -ixon  # Disable Ctrl-S pausing input.
-
+stty -ixon # Disable Ctrl-S pausing input.
 
 #
 # Readline options
 #
 
 set -o vi
-if [[ ! -r "$INPUTRC" ]] ; then
-    bind '"\C-h": backward-kill-word'  # Ctrl-Backspace.
+if [[ ! -r "$INPUTRC" ]]; then
+    bind '"\C-h": backward-kill-word' # Ctrl-Backspace.
 fi
-
 
 #
 # Shell aliases
@@ -77,22 +72,19 @@ alias grep='grep --color'
 alias diff='diff --color'
 alias tree='tree --gitignore'
 alias open='xdg-open'
-alias shlvl='echo $SHLVL'
-if [[ $OS == 'Windows_NT' ]] ; then
+if [[ $OS == 'Windows_NT' ]]; then
     alias python='winpty python'
     alias node='winpty node'
     alias gh='winpty gh'
     alias open='explorer'
 fi
-if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null ; then
+if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null; then
     alias code=codium
 fi
-
 
 #
 # Shell functions
 #
-
 
 # Usage: PROMPT_COMMAND='__prompt_command'
 #
@@ -100,12 +92,11 @@ fi
 #
 __prompt_command() {
     local str="${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"
-    if [[ $SHLVL -gt 1 && -z $TMUX ]] ; then
+    if [[ $SHLVL -gt 1 && -z $TMUX ]]; then
         str="[${SHLVL}] ${str}"
     fi
     __set_terminal_title "$str"
 }
-
 
 # Usage:
 #   `args`: Print a numbered list of shell arguments.
@@ -128,56 +119,55 @@ alias e='__e $# "${@:?}"'
 __e() {
     local argc=$1
     shift
-    if [[ $# -gt $(($argc + 1)) ]] ; then
+    if [[ $# -gt $(($argc + 1)) ]]; then
         shift $argc
         echo "too many arguments: $@" >&2
         return 1
     fi
     local sel=${@: -1:1}
-    set -- "${@:1:$# - 1}"
+    set -- "${@:1:$#-1}"
     case $sel in
         *[![:digit:]]*)
             local arg
-            for arg ; do
+            for arg; do
                 shift
-                if [[ $arg == *${sel}* ]] ; then
+                if [[ $arg == *${sel}* ]]; then
                     set -- "$@" "$arg"
                 fi
             done
-            if [[ $# -gt 1 ]] ; then
+            if [[ $# -gt 1 ]]; then
                 echo "'$sel' matched multiple arguments: $@" >&2
                 echo 'unique match required' >&2
                 return 1
             fi
-            if [[ $# -eq 0 ]] ; then
+            if [[ $# -eq 0 ]]; then
                 echo "'$sel' did not match any arguments" >&2
                 return 1
             fi
             ;;
         *)
-            if [[ $sel -gt $# || $sel -eq 0 ]] ; then
+            if [[ $sel -gt $# || $sel -eq 0 ]]; then
                 echo "'$sel' outside of argument range: 1-$#" >&2
                 return 1
             fi
             set -- "${@:${sel}:1}"
+            ;;
     esac
     "${EDITOR:-vi}" "$@"
 }
-
 
 # Usage: exec <command>
 #
 # Only exec <command> if there are no background jobs running.
 #
 exec() {
-    if [[ -n $(jobs) ]] ; then
+    if [[ -n $(jobs) ]]; then
         echo 'cannot exec: background jobs running' >&2
         jobs
         return 1
     fi
     builtin exec "$@"
 }
-
 
 # Usage: backup [--poweroff]
 #
@@ -197,7 +187,6 @@ backup() {
     ' backup "$@"
 }
 
-
 # Usage: hex2char <hexcode> [<hexcode>...]
 #
 # Examples:
@@ -215,7 +204,6 @@ hex2char() {
     unset OLDIFS
 }
 
-
 # Usage: char2hex <string> [<zero padding width>]
 #
 # Examples:
@@ -232,7 +220,6 @@ char2hex() {
     python -c "print(*['0x{:0${2:-}x}'.format(ord(c)) for c in '${1:?}'])"
 }
 
-
 # Usage: uriencode <raw_URI>
 #
 # Encodes an entire URI string.
@@ -244,7 +231,6 @@ char2hex() {
 uriencode() {
     node -p "encodeURI('$1')"
 }
-
 
 # Usage: uridecode <encoded_URI>
 #
@@ -258,23 +244,21 @@ uridecode() {
     node -p "decodeURI('$1')"
 }
 
-
 # Usage: PROMPT_COMMAND='printf "\e]0;%s\a" "${USER}@${HOSTNAME}:${PWD//$HOME/\~}$(__git_ps1)"'
 #
 # A much simplified (and much quicker) version of the prompt which ships
 # with `git`.
 #
 __git_ps1() {
-    if ! git status -s &>/dev/null ; then
+    if ! git status -s &>/dev/null; then
         return
     fi
     local current=$(git branch --show-current)
-    if [[ -z $current ]] ; then
+    if [[ -z $current ]]; then
         current=$(git rev-parse --short HEAD)
     fi
     printf ' (%s)' "$current"
 }
-
 
 # Usage: gitcheck
 #
@@ -317,7 +301,6 @@ gitcheck() {
     ' {} \; 2>/dev/null
 }
 
-
 # Usage: serve <directory> [browser-sync options]
 #
 # Serve contents of <directory>, watching all files.  Any long options will be
@@ -328,14 +311,14 @@ gitcheck() {
 #
 serve() {
     local arg
-    for arg ; do
+    for arg; do
         shift
-        if [[ "$arg" == --* ]] ; then
+        if [[ "$arg" == --* ]]; then
             set -- "$@" "$arg"
             continue
         fi
         local dir="$arg"
-        if [[ ! -d "$dir" ]] ; then
+        if [[ ! -d "$dir" ]]; then
             echo "not a directory: '$dir'" >&2
             return 1
         fi
@@ -343,7 +326,6 @@ serve() {
     done
     browser-sync start --server "$dir" --files "$dir" "$@"
 }
-
 
 # Usage: mdprev <markdown_file>
 #
@@ -354,11 +336,11 @@ serve() {
 #   mdprev foo.md &>mdprev.out &
 #
 mdprev() {
-    if ! command -v entr &>/dev/null ; then
+    if ! command -v entr &>/dev/null; then
         echo 'entr required' >&2
         return 1
     fi
-    if ! command -v browser-sync &>/dev/null ; then
+    if ! command -v browser-sync &>/dev/null; then
         echo 'browser-sync required' >&2
         return 1
     fi
@@ -369,7 +351,6 @@ mdprev() {
     trap "kill $!" RETURN
     browser-sync start -s "$tmpdir" -f "$out"
 }
-
 
 # Usage: termctl [-p|--passthrough] <command> [<args>...]
 #
@@ -425,13 +406,14 @@ termctl() {
     local seq
     local passthrough
     case $1 in
-        -p|--passthrough)
+        -p | --passthrough)
             passthrough='true'
             shift
+            ;;
     esac
     case $1 in
         title)
-            if [[ -n $2 ]] ; then
+            if [[ -n $2 ]]; then
                 __OLD_PROMPT_COMMAND=$PROMPT_COMMAND
                 PROMPT_COMMAND="__set_terminal_title '$2'"
             else
@@ -444,20 +426,27 @@ termctl() {
         color)
             case $2 in
                 fg)
-                    seq=$(__set_terminal_fg "$3") ;;
+                    seq=$(__set_terminal_fg "$3")
+                    ;;
                 bg)
-                    seq=$(__set_terminal_bg "$3") ;;
+                    seq=$(__set_terminal_bg "$3")
+                    ;;
                 selection-fg)
-                    seq=$(__set_terminal_selection_fg "$3") ;;
+                    seq=$(__set_terminal_selection_fg "$3")
+                    ;;
                 selection-bg)
-                    seq=$(__set_terminal_selection_bg "$3") ;;
+                    seq=$(__set_terminal_selection_bg "$3")
+                    ;;
                 cursor)
-                    seq=$(__set_terminal_cursor_color "$3") ;;
-                [0-9]|1[0-5])
-                    seq=$(__set_terminal_palette "$2" "$3") ;;
+                    seq=$(__set_terminal_cursor_color "$3")
+                    ;;
+                [0-9] | 1[0-5])
+                    seq=$(__set_terminal_palette "$2" "$3")
+                    ;;
                 *)
                     echo "Unknown color keyword: $2" >&2
                     return 1
+                    ;;
             esac
             ;;
         palette)
@@ -466,35 +455,40 @@ termctl() {
             ;;
         theme)
             case $2 in
-                linux|light)
+                linux | light)
                     seq=$(__set_linux_console_theme)
                     export TERMINAL_THEME='linux_console'
                     ;;
-                solarized|dark)
+                solarized | dark)
                     seq=$(__set_solarized_theme)
                     export TERMINAL_THEME='solarized'
                     ;;
                 *)
                     echo "Unknown theme: $@" >&2
                     return 1
+                    ;;
             esac
             ;;
         cursor)
             # Non-blinking cursor styles not implemented.
             case $2 in
                 block)
-                    seq=$(__set_terminal_cursor_shape 1) ;;
+                    seq=$(__set_terminal_cursor_shape 1)
+                    ;;
                 bar)
-                    seq=$(__set_terminal_cursor_shape 5) ;;
+                    seq=$(__set_terminal_cursor_shape 5)
+                    ;;
                 underline)
-                    seq=$(__set_terminal_cursor_shape 3) ;;
+                    seq=$(__set_terminal_cursor_shape 3)
+                    ;;
                 *)
                     echo "Unknown cursor style: $2" >&2
                     return 1
+                    ;;
             esac
             ;;
         size)
-            if [[ $# -lt 3 ]] ; then
+            if [[ $# -lt 3 ]]; then
                 echo "Usage: termctl size <lines> <columns>" >&2
                 return 1
             fi
@@ -503,8 +497,9 @@ termctl() {
         *)
             echo "Unknown command: $1" >&2
             return 1
+            ;;
     esac
-    if [[ -n $passthrough ]] ; then
+    if [[ -n $passthrough ]]; then
         __tmux_passthrough '%s' "$seq"
     else
         printf '%s' "$seq"
@@ -550,21 +545,21 @@ __set_terminal_cursor_color() {
 }
 
 __set_terminal_cursor_style() {
-        # 0  ⇒  blinking block.
-        # 1  ⇒  blinking block (default).
-        # 2  ⇒  steady block.
-        # 3  ⇒  blinking underline.
-        # 4  ⇒  steady underline.
-        # 5  ⇒  blinking bar, xterm.
-        # 6  ⇒  steady bar, xterm.
+    # 0  ⇒  blinking block.
+    # 1  ⇒  blinking block (default).
+    # 2  ⇒  steady block.
+    # 3  ⇒  blinking underline.
+    # 4  ⇒  steady underline.
+    # 5  ⇒  blinking bar, xterm.
+    # 6  ⇒  steady bar, xterm.
     printf '\e[%d q' "${1:?}"
 }
 
 __set_solarized_theme() {
-    __set_terminal_fg '#839496'  # 12
-    __set_terminal_bg '#002B36'  # 8
-    __set_terminal_selection_fg '#EEE8D5'  # 7
-    __set_terminal_selection_bg '#6C71C4'  # 13
+    __set_terminal_fg '#839496'           # 12
+    __set_terminal_bg '#002B36'           # 8
+    __set_terminal_selection_fg '#EEE8D5' # 7
+    __set_terminal_selection_bg '#6C71C4' # 13
     __set_terminal_palette \
         0 '#073642' \
         1 '#DC322F' \
@@ -585,10 +580,10 @@ __set_solarized_theme() {
 }
 
 __set_linux_console_theme() {
-    __set_terminal_fg '#000000'  # 0
-    __set_terminal_bg '#FFFFFF'  # 15
-    __set_terminal_selection_fg '#FFFFFF'  # 15
-    __set_terminal_selection_bg '#5555FF'  # 12
+    __set_terminal_fg '#000000'           # 0
+    __set_terminal_bg '#FFFFFF'           # 15
+    __set_terminal_selection_fg '#FFFFFF' # 15
+    __set_terminal_selection_bg '#5555FF' # 12
     __set_terminal_palette \
         0 '#000000' \
         1 '#AA0000' \
