@@ -72,6 +72,7 @@ alias grep='grep --color'
 alias diff='diff --color'
 alias tree='tree --gitignore'
 alias open='xdg-open'
+alias dash='PS1=dash\$\  dash'
 if [[ $OS == 'Windows_NT' ]]; then
     alias python='winpty python'
     alias node='winpty node'
@@ -178,12 +179,25 @@ exec() {
 #
 backup() {
     sudo sh -c '
-        mount --types cifs --options vers=1.0,user=jfox \
-            //192.168.1.1/usb2_sda1 /mnt/network &&
-        rsync --checksum --recursive --compress --verbose \
-            --backup /home/jfox/Data /mnt/network/ &&
-        test "$1" = "--poweroff" &&
-        poweroff
+        set -e
+        if ! findmnt /mnt/network >/dev/null 2>&1; then
+            mount \
+                --types cifs \
+                --options vers=1.0,user=jfox \
+                //192.168.1.1/usb2_sda1 \
+                /mnt/network
+        fi
+        rsync \
+            --checksum \
+            --recursive \
+            --compress \
+            --verbose \
+            --backup \
+            /home/jfox/Data \
+            /mnt/network/
+        if [ "$1" = "--poweroff" ]; then
+            poweroff
+        fi
     ' backup "$@"
 }
 
