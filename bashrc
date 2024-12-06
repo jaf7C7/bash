@@ -73,14 +73,19 @@ alias diff='diff --color'
 alias tree='tree --gitignore'
 alias open='xdg-open'
 alias dash='PS1=dash\$\  dash'
+if command -v flatpak &>/dev/null &&
+    flatpak --app --columns=application list | grep -q 'com\.vscodium\.codium'
+then
+    alias code='2>/dev/null flatpak run com.vscodium.codium'
+fi
+if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null; then
+    alias code=codium
+fi
 if [[ $OS == 'Windows_NT' ]]; then
     alias python='winpty python'
     alias node='winpty node'
     alias gh='winpty gh'
     alias open='explorer'
-fi
-if [[ $TERM_PROGRAM == 'vscode' ]] && command -v codium &>/dev/null; then
-    alias code=codium
 fi
 
 #
