@@ -14,6 +14,10 @@ fi
 
 PS1='\$ '
 PROMPT_COMMAND='__prompt_command'
+if [[ $TERM_PROGRAM == 'vscode' ]]; then
+    PS1='\w \$ '
+    unset PROMPT_COMMAND
+fi
 CDPATH=.:~:~/Projects:~/Courses
 HISTFILESIZE=1000000
 HISTSIZE=10000
@@ -46,7 +50,6 @@ shopt -s histappend              # Append to history file, don't overwrite.
 shopt -s lithist                 # Preserve formatting of multiline commands in history.
 shopt -s no_empty_cmd_completion # Don't try to complete empty lines.
 shopt -s checkjobs               # Warn about background jobs when exiting the shell.
-shopt -ou histexpand             # Turn off `!` history expansion.
 
 #
 # TTY options
