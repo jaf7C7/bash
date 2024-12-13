@@ -480,10 +480,12 @@ termctl() {
                 linux | light)
                     seq=$(__set_linux_console_theme)
                     export TERMINAL_THEME='linux_console'
+                    eval $(dircolors)
                     ;;
                 solarized | dark)
                     seq=$(__set_solarized_theme)
                     export TERMINAL_THEME='solarized'
+                    eval "$(dircolors | sed 's/00;90/00;92/g')"
                     ;;
                 *)
                     echo "Unknown theme: $@" >&2
