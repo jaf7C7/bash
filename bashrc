@@ -75,7 +75,11 @@ alias grep='grep --color'
 alias diff='diff --color'
 alias tree='tree --gitignore'
 alias open='xdg-open'
+alias sh='PS1=sh\$\  sh'
 alias dash='PS1=dash\$\  dash'
+if [[ -n $GNOME_TERMINAL_SCREEN ]]; then
+    alias gt='gnome-terminal'
+fi
 if command -v flatpak &>/dev/null &&
     flatpak --app --columns=application list | grep -q 'com\.vscodium\.codium'
 then
