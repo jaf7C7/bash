@@ -481,9 +481,14 @@ termctl() {
             ;;
         theme)
             case $2 in
-                linux | light)
+                linux)
                     seq=$(__set_linux_console_theme)
-                    export TERMINAL_THEME='linux_console'
+                    export TERMINAL_THEME='linux-console'
+                    eval $(dircolors)
+                    ;;
+                visual-studio | light)
+                    seq=$(__set_visual_studio_theme)
+                    export TERMINAL_THEME='visual-studio'
                     eval $(dircolors)
                     ;;
                 solarized | dark)
@@ -618,6 +623,30 @@ __set_linux_console_theme() {
         2 '#00AA00' \
         3 '#AA5500' \
         4 '#0000AA' \
+        5 '#AA00AA' \
+        6 '#00AAAA' \
+        7 '#AAAAAA' \
+        8 '#555555' \
+        9 '#FF5555' \
+        10 '#55FF55' \
+        11 '#FFFF55' \
+        12 '#5555FF' \
+        13 '#FF55FF' \
+        14 '#55FFFF' \
+        15 '#FFFFFF'
+}
+
+__set_visual_studio_theme() {
+    __set_terminal_fg '#000000'           # 0
+    __set_terminal_bg '#FFFFFF'           # 15
+    # __set_terminal_selection_fg '#FFFFFF' # 15
+    # __set_terminal_selection_bg '#0000FF' # 12
+    __set_terminal_palette \
+        0 '#000000' \
+        1 '#A3161D' \
+        2 '#0B8100' \
+        3 '#AA5500' \
+        4 '#0000FF' \
         5 '#AA00AA' \
         6 '#00AAAA' \
         7 '#AAAAAA' \
