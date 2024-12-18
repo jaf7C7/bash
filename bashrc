@@ -590,11 +590,11 @@ __set_terminal_cursor_style() {
 
 __set_solarized_theme() {
     __set_terminal_fg '#839496'           # 12
-    __set_terminal_bg '#002B36'           # 8
+    __set_terminal_bg '#002B36'           # 0
     __set_terminal_selection_fg '#EEE8D5' # 7
     __set_terminal_selection_bg '#6C71C4' # 13
     __set_terminal_palette \
-        0 '#073642' \
+        0 '#002B36' \
         1 '#DC322F' \
         2 '#859900' \
         3 '#B58900' \
@@ -602,7 +602,7 @@ __set_solarized_theme() {
         5 '#D33682' \
         6 '#2AA198' \
         7 '#EEE8D5' \
-        8 '#002B36' \
+        8 '#073642' \
         9 '#CB4B16' \
         10 '#586E75' \
         11 '#657B83' \
@@ -643,8 +643,8 @@ __set_vs_theme() {
     __set_terminal_palette \
         0 '#000000' \
         1 '#AA0000' \
-        2 '#0B8100' \  # Darker green
-        3 '#AA8500' \  # Yellower yellow
+        2 '#0B8100' \
+        3 '#AA8500' \
         4 '#0000AA' \
         5 '#AA00AA' \
         6 '#00AAAA' \
@@ -653,7 +653,7 @@ __set_vs_theme() {
         9 '#FF5555' \
         10 '#55FF55' \
         11 '#FFFF55' \
-        12 '#0000FF' \  # Bluer bright blue
+        12 '#0000FF' \
         13 '#FF55FF' \
         14 '#55FFFF' \
         15 '#FFFFFF'
