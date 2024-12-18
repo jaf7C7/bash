@@ -637,24 +637,25 @@ __set_linux_console_theme() {
 }
 
 __set_vs_theme() {
+    # Like 'linux_console' but better.
     __set_terminal_fg '#000000'           # 0
     __set_terminal_bg '#FFFFFF'           # 15
     __set_terminal_palette \
         0 '#000000' \
-        1 '#A3161D' \
-        2 '#0B8100' \
-        3 '#CDB900' \
-        4 '#0000FF' \
+        1 '#AA0000' \
+        2 '#0B8100' \  # Darker green
+        3 '#AA8500' \  # Yellower yellow
+        4 '#0000AA' \
         5 '#AA00AA' \
         6 '#00AAAA' \
-        7 '#f5f5f5' \
-        8 '#8C8C8C' \
-        9 '#A3161D' \
-        10 '#0B8100' \
-        11 '#CDB900' \
-        12 '#0000FF' \
-        13 '#AA00AA' \
-        14 '#00AAAA' \
+        7 '#AAAAAA' \
+        8 '#555555' \
+        9 '#FF5555' \
+        10 '#55FF55' \
+        11 '#FFFF55' \
+        12 '#0000FF' \  # Bluer bright blue
+        13 '#FF55FF' \
+        14 '#55FFFF' \
         15 '#FFFFFF'
 }
 
