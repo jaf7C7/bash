@@ -486,9 +486,9 @@ termctl() {
                     export TERMINAL_THEME='linux-console'
                     eval $(dircolors)
                     ;;
-                visual-studio | light)
-                    seq=$(__set_visual_studio_theme)
-                    export TERMINAL_THEME='visual-studio'
+                vs | light)
+                    seq=$(__set_vs_theme)
+                    export TERMINAL_THEME='vs'
                     eval $(dircolors)
                     ;;
                 solarized | dark)
@@ -636,7 +636,7 @@ __set_linux_console_theme() {
         15 '#FFFFFF'
 }
 
-__set_visual_studio_theme() {
+__set_vs_theme() {
     __set_terminal_fg '#000000'           # 0
     __set_terminal_bg '#FFFFFF'           # 15
     __set_terminal_palette \
@@ -677,6 +677,3 @@ __tmux_passthrough() {
         }
     '
 }
-
-################################################################################
-termctl theme visual-studio
