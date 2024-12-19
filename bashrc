@@ -378,11 +378,10 @@ mdprev() {
     browser-sync start -s "$tmpdir" -f "$out"
 }
 
-# Usage: termctl [-p|--passthrough] <command> [<args>...]
+# Usage: termctl <command> [<args>...]
 #
-# Functions for configuring the terminal via escape sequences. The `-p` or
-# `--passthrough` option wraps escape sequences in the tmux passthrough escape
-# sequence.
+# Functions for configuring the terminal via escape sequences.  Requires
+# `allow-passthrough on` to be set for use in Tmux.
 #
 # Tmux passthrough sequence:
 # https://github.com/tmux/tmux/wiki/FAQ#what-is-the-passthrough-escape-sequence-and-how-do-i-use-it
@@ -431,13 +430,6 @@ mdprev() {
 termctl() {
     # TODO: Set up bash completion for this.
     local seq
-    local passthrough
-    case $1 in
-        -p | --passthrough)
-            passthrough='true'
-            shift
-            ;;
-    esac
     case $1 in
         title)
             if [[ -n $2 ]]; then
@@ -533,7 +525,7 @@ termctl() {
             return 1
             ;;
     esac
-    if [[ -n $passthrough ]]; then
+    if [[ -n $TMUX ]]; then
         __tmux_passthrough '%s' "$seq"
     else
         printf '%s' "$seq"
@@ -638,19 +630,18 @@ __set_linux_console_theme() {
 }
 
 __set_vs_theme() {
-    # Like 'linux_console' but better.
     __set_terminal_fg '#000000'           # 0
     __set_terminal_bg '#FFFFFF'           # 15
     __set_terminal_palette \
         0 '#000000' \
         1 '#AA0000' \
-        2 '#0B8100' \
-        3 '#AA8500' \
+        2 '#00AA00' \
+        3 '#AA5500' \
         4 '#0000AA' \
         5 '#AA00AA' \
         6 '#00AAAA' \
-        7 '#AAAAAA' \
-        8 '#555555' \
+        7 '#F0F0F0' \
+        8 '#999999' \
         9 '#FF5555' \
         10 '#55FF55' \
         11 '#FFFF55' \
