@@ -18,7 +18,7 @@ if [[ $TERM_PROGRAM == 'vscode' ]]; then
     PS1='\w \$ '
     unset PROMPT_COMMAND
 fi
-CDPATH=.:~:~/Projects:~/Courses
+CDPATH=.:~:~/.config:~/Projects:~/Courses
 HISTFILESIZE=1000000
 HISTSIZE=10000
 HISTIGNORE='[fb]g*:%*'
@@ -429,6 +429,7 @@ mdprev() {
 #       All cursors blink.
 #
 termctl() {
+    # TODO: Set up bash completion for this.
     local seq
     local passthrough
     case $1 in
